@@ -1,0 +1,78 @@
+Entities
+-----
+Person: Name, Mood, Hungry, Greeting, Pronoun, Poem
+Olivia, sad, Yes, "Howdy", she, "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons."
+Will, happy, Yes, "Great to see you", he, "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air."
+Mariko, nervous, No, "I'm glad you could make it", she, "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong."
+Pradeep, happy, No, "Hey", he, "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab."
+Sarah, nervous, Yes, "Oh hi there", she, "You may write me down in history with your bitter, twisted lies, you may trod me in the very dirt but still, like dust, I'll rise."
+Julian, sad, No, "It's been too long", he, "I wandered lonely as a cloud that floats on high o'er vales and hills, when all at once I saw a crowd, A host, of golden daffodils."
+
+Drink: Name, Price
+coffee, 3
+tea, 2
+latte, 5
+
+Dessert: Name, Location
+cake, display case
+sorbet, freezer
+mousse, refrigerator
+
+Roles
+-----
+Subject: Person
+Friend: Person
+Emcee: Person
+Poet: Person
+Drink_bought: Drink
+Dessert_bought: Dessert
+
+States
+-----
+BEGIN
+[Subject.Name] walked into the coffee shop on poetry night.
+Subject.Hungry == "Yes": 0.9 Order_drink, 0.1 Sit_down
+Default: 0.4 Order_drink, 0.6 Sit_down
+
+Order_drink
+[Subject.Pronoun] walked to the counter and decided on a [Drink_bought.Name].
+Drink_bought.Price > 4: 0.8 Too_expensive, 0.2 Sit_down
+Default: 1.0 Sit_down
+
+Too_expensive
+But after hearing how expensive it was, [Subject.Pronoun] canceled the order.
+Default: 1.0 Sit_down
+
+Sit_down
+[Subject.Pronoun] found an empty chair next to [Friend.Name]. "[Friend.Greeting] [Subject.Name]!" said [Friend.Name]. "[Subject.Greeting] [Friend.Name]!" [Subject.Name] replied.
+Default: 0.5 Emcee_intro, 0.5 Poet_performs
+
+Emcee_intro
+[Emcee.Name], who was the emcee for tonight, walked to the front of the room and introduced the first poet, [Poet.Name].
+Default: 1.0 Poet_performs
+
+Poet_performs
+[Poet.Name] stepped up to the microphone and read the poem that [Poet.Pronoun] had written: "[Poet.Poem]" The crowd snapped their fingers politely.
+Subject.Mood == "nervous": 0.8 Subject_declines, 0.2 Subject_performs
+Subject.Mood == "happy": 0.1 Subject_declines, 0.9 Subject_performs
+Default: 0.3 Subject_declines, 0.7 Subject_performs
+
+Subject_declines
+[Subject.Name] had also written a poem, but decided that [Subject.Pronoun] wasn't in the mood to share it today.
+Default: 1.0 Say_goodbye
+
+Subject_performs
+[Subject.Name] then took at turn at the microphone. "[Subject.Poem]" When [Subject.Pronoun] sat back down, [Friend.Name] said that [Friend.Pronoun] loved the poem.
+Default: 1.0 Say_goodbye
+
+Say_goodbye
+After all the poets had performed, [Subject.Name] and [Friend.Name] said their goodbyes and walked toward the door.
+Subject.Hungry == "Yes": 0.7 Order_dessert, 0.3 END
+Default: 0.1 Order_dessert, 0.9 END
+
+Order_dessert
+On the way out, [Subject.Name] ordered a [Dessert_bought.Name] to take home. The barista took one from the [Dessert_bought.Location] and wrapped it up to go.
+Default: 1.0 END
+
+END
+[Subject.Name] made a mental note to come back again next week.
