@@ -1,10 +1,12 @@
 from csv import reader
 from copy import deepcopy
+import os
 import numpy as np
 from sys import argv
 
 #import arguments
-a, input_text, output_text, n_iterations = argv
+_, input_fname, n_iterations = argv
+FILE_FORMAT = '.txt'
 
 class Transition:
     """Represents a single set of transitions, with a condition"""
@@ -46,7 +48,7 @@ entities = dict()
 roles = dict()
 states = dict()
 
-f = open(input_text)
+f = open(input_fname + FILE_FORMAT)
 
 # Read entities
 assert f.readline().strip() == "Entities", "Spec file must start with Entities"
@@ -111,7 +113,10 @@ f.close()
 
 
 # Generate stories
-f = open(output_text,'w')
+output_path = '../story'
+output_fname = os.path.join(output_path, input_fname + '_' + n_iterations + FILE_FORMAT)
+f = open(output_fname,'w')
+print('Generate stories: [%s] -> [%s]...' % (input_fname, output_fname))
 for i in range(int(n_iterations)):
     # Create Grounding
     np.random.seed(i)
