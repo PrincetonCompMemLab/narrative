@@ -1,5 +1,13 @@
 resources can be found on the <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">wiki page</a>
 
-use engine.py to generate any schema
+1. to generate a bunch of stories: 
+  - input: a schema (e.g.: schema/poetry.txt)
+  - in the terminal, cd to the schema directory, and run "./run_engine.sh schema_file n_iter", where n_iter is the number of repititions
+  - e.g.: ./run_engine.sh poetry 10
+  - this procedure generates a file "schema_file_n_iter" under the story directory
 
-to run, engine.py takes 3 command-line arguments: the text file outlining the details of the particular schema(ex. fight.txt), the name of the file you want the output to be written into, the number of times you want the schema generated 
+2. to clean the stories file 
+  - input: a text file contains a bunch of stories (from step 1) under the story directory
+  - in the terminal, cd to src, and run "python clean_txt.py input_file"
+  - e.g. python clean_txt.py poetry_10
+  - this procedure generates a file "input_file_clean" under story_processed directory
