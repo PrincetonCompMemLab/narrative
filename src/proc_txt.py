@@ -33,9 +33,18 @@ index_string = list_of_int_to_int_string(index)
 char_output_fname = input_fname + '_clean.txt'
 write2file(text, char_output_fname, output_path)
 
+# sys.exit('STOP - word level output')
 word_output_fname = input_fname + '_word.txt'
 write2file(index_string, word_output_fname, output_path)
 
+word_output_npz_fname = input_fname + '_word'
+save_list_of_int_to_npz(index, word_output_npz_fname, output_path, .9)
+
 word_dict_output_fname = input_fname + '_word_dict'
 save_dict(word_to_id, word_dict_output_fname, output_path)
+
+
+
+
+
 

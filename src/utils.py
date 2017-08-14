@@ -71,9 +71,10 @@ def write2file(input_text, output_fname, output_path):
     :return:
     '''
     print('Write to <%s>' % (output_path + output_fname))
-    char_output_file = open(output_path + output_fname, 'w')
-    char_output_file.write(input_text)
-    char_output_file.close()
+    output_file = open(output_path + output_fname, 'w')
+    output_file.write(input_text)
+    output_file.close()
+
 
 def save_dict(input_dict, dict_name, output_path):
     write_path = output_path + dict_name + '.pickle'
@@ -91,3 +92,101 @@ def read_dict(dict_name, input_path):
         output_dict = pickle.load(handle)
     return output_dict
 
+
+
+def save_list_of_int_to_npz(list_of_int, fname, output_path, train_ratio):
+    # count n_tokens
+    num_tokens = len(list_of_int)
+    # split training and validation sets
+    train_size = int(num_tokens * train_ratio)
+    valid_size = int(num_tokens * (1 - train_ratio))
+    train = list_of_int[: train_size]
+    valid = list_of_int[: -valid_size]
+
+    # write it to a .npz file
+    path_output_file = output_path + fname
+    print('Write to %s.npz' % path_output_file)
+    np.savez(path_output_file, train=train, valid=valid)
+
+    # check output file
+    # npzfile = np.load(path_output_file + '.npz')
+    # print(npzfile.files)
+    # temp = npzfile['train']
+    # print(type(temp[1]))
+    # print(temp)
+
+
+
+
+'''
+pending... don't use these 
+'''
+#
+# def string2list_of_ascii(string):
+#   '''
+#   preprocessing to a list of ascii values
+#    - code space as 0
+#    - code chars as ascii val - 96 (so range = 1-27)
+#   '''
+#   list_of_ascii = []
+#   for i in range(len(string)):
+#     if ord(string[i]) == 32:
+#       list_of_ascii.append(0)
+#     else:
+#       list_of_ascii.append(ord(string[i].lower()) - 96)
+#   return list_of_ascii
+#
+#
+# def get_doc_counts(data_path):
+#   '''
+#   :param: data_path: points to a english text file
+#   :return: the number of characters, words and lines of a document
+#   '''
+#   num_chars = num_words = num_lines = 0
+#   with open(data_path, 'r') as in_file:
+#     for line in in_file:
+#       num_lines += 1
+#       num_words += len(line.split())
+#       num_chars += len(line)
+#   print 'num_chars = %d, num_words = %d, num_lines = %d' \
+#         % (num_chars, num_words, num_lines)
+#   return num_chars, num_words, num_lines
+#
+# def text_to_npz():
+#     _, fname = sys.argv
+#     # spec the path
+#     # path = '/Users/Qihong/Dropbox/github/hmrnn/data/schema_both/'
+#     # fname = 'both_out_clean'
+#     path = '../story_processed/'
+#     path_input_file = path + fname + '.txt'
+#     path_output_file = path + fname + '.npz'
+#
+#     # count n_tokens
+#     file = open(path_input_file, 'r')
+#     num_chars, _, _ = get_doc_counts(path_input_file)
+#     # split training and validation sets
+#     train_ratio = .9
+#     train_size = int(num_chars * train_ratio)
+#     valid_size = int(num_chars * (1 - train_ratio))
+#
+#     # load the text file
+#     file = open(path_input_file, 'r')
+#
+#     # read the training seq
+#     train = file.read(train_size)
+#     # jump to where it was left
+#     file.seek(file.tell())
+#     # read the valid seq
+#     valid = file.read(valid_size)
+#
+#     # train = string2list_of_ascii(train)
+#     # valid = string2list_of_ascii(valid)
+#
+#     # write it to a .npz file
+#     np.savez(path_output_file, train=train, valid=valid)
+#
+#     # # check file
+#     # npzfile = np.load(path_output_file)
+#     # print npzfile.files
+#     # temp = npzfile['train']
+#     # print type(temp[1])
