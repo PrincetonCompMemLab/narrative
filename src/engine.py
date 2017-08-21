@@ -9,8 +9,8 @@ _, input_fname, n_iterations = 'temp', 'poetry', '2'
 _, input_fname, n_iterations = argv
 
 # constants 
-FILE_FORMAT = '.txt'
 MARK_END_STATE = True
+FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 OUTPUT_PATH = '../story'
 INPUT_PATH  = '../schema'
@@ -162,7 +162,9 @@ for i in range(int(n_iterations)):
             filled = filled[0] + filled[1].upper() + filled[2:]
         else:
             filled = filled[0].upper() + filled[1:]
+            
         # add symbolic markers     
+        # if SHUFFLE_WORDS:
         if MARK_END_STATE: 
             filled += (' ' + END_STATE_MARKER)
         # write to text 

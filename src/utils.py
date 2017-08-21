@@ -1,4 +1,5 @@
 from sklearn.preprocessing import OneHotEncoder
+from random import shuffle 
 import numpy as np
 import pickle
 import string
@@ -6,6 +7,9 @@ import itertools
 import re
 import os
 import sys
+import json
+
+END_STATE_MARKER = 'ENDOFSTATE'
 
 def str2cleanstr(string):
     print('Removing punctuation marks from text...')
@@ -53,6 +57,8 @@ def list_of_words_2_one_hot(list_of_words):
     # reformat the output
     token_ids = list_of_singular_list_to_list_of_val(token_ids)
     X = X.toarray()
+    (doc_len, n_tokens) = np.shape(X)
+    print('\t Doc length = %d, Num token = %d' % (doc_len, n_tokens))
     return token_ids, X, word_to_id
 
 def list_of_int_to_int_string(list_of_int):
@@ -62,6 +68,30 @@ def list_of_int_to_int_string(list_of_int):
         int_string += str(list_of_int[i])
         int_string += ' '
     return int_string
+
+
+def shuffle_text(text):
+    print('Shuffle the words (within each state) in the story ...')
+    # split the input story to sentences, w.r.t END_STATE_MARKER
+    states_list = text.split(END_STATE_MARKER)
+    shuf_states_list = [] 
+    # for each sentence... 
+    for i in range(len(states_list)): 
+        if states_list[i] != ' ':
+            # split into words and shuffle the words 
+            cur_state_split = states_list[i].split()
+            shuffle(cur_state_split) 
+            # recombine to a sentence 
+            shuf_cur_state = ' '.join(cur_state_split)
+            shuf_cur_state += (' ' + END_STATE_MARKER + ' ')
+            # add to the shuffed sentence list 
+            shuf_states_list.append(shuf_cur_state)
+    # recombine to a story     
+    shuffled_story = ''.join(shuf_states_list)
+    assert(len(shuffled_story) == len(text))
+    return shuffled_story
+
+
 
 def write2file(input_text, output_fname, output_path):
     '''
@@ -79,11 +109,16 @@ def write2file(input_text, output_fname, output_path):
 
 
 def save_dict(input_dict, dict_name, output_path):
-    dict_name = dict_name + '.pickle'
+    dict_name = dict_name + '_word_dict.pickle'
     write_path = os.path.join(output_path, dict_name)
     print('Write to <%s>' % write_path)
     with open(write_path, 'wb') as handle:
         pickle.dump(input_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    print('Write to <%s>' % os.path.join(output_path, 'metadata.txt'))
+    json.dump(input_dict, open(os.path.join(output_path, 'metadata.txt'),'w'))
+    
+    
+    
     # testing
     # temp_dict = read_dict(dict_name, input_path=output_path)
     # assert(temp_dict == input_dict)
@@ -98,6 +133,7 @@ def read_dict(dict_name, input_path):
 
 
 def save_list_of_int_to_npz(list_of_int, fname, output_path, train_ratio):
+    fname = fname + '_word'
     # count n_tokens
     num_tokens = len(list_of_int)
     # split training and validation sets
@@ -108,7 +144,7 @@ def save_list_of_int_to_npz(list_of_int, fname, output_path, train_ratio):
 
     # write it to a .npz file
     path_output_file = os.path.join(output_path, fname)
-    print('Write to %s.npz' % path_output_file)
+    print('Write to <%s.npz>' % path_output_file)
     np.savez(path_output_file, train=train, valid=valid)
 
     # check output file
