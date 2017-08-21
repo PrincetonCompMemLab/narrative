@@ -4,6 +4,7 @@ import pickle
 import string
 import itertools
 import re
+import os
 import sys
 
 def str2cleanstr(string):
@@ -70,14 +71,16 @@ def write2file(input_text, output_fname, output_path):
     :param output_path: output directory
     :return:
     '''
-    print('Write to <%s>' % (output_path + output_fname))
-    output_file = open(output_path + output_fname, 'w')
+
+    print('Write to <%s>' % (os.path.join(output_path, output_fname)))
+    output_file = open(os.path.join(output_path, output_fname), 'w')
     output_file.write(input_text)
     output_file.close()
 
 
 def save_dict(input_dict, dict_name, output_path):
-    write_path = output_path + dict_name + '.pickle'
+    dict_name = dict_name + '.pickle'
+    write_path = os.path.join(output_path, dict_name)
     print('Write to <%s>' % write_path)
     with open(write_path, 'wb') as handle:
         pickle.dump(input_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -104,7 +107,7 @@ def save_list_of_int_to_npz(list_of_int, fname, output_path, train_ratio):
     valid = list_of_int[: -valid_size]
 
     # write it to a .npz file
-    path_output_file = output_path + fname
+    path_output_file = os.path.join(output_path, fname)
     print('Write to %s.npz' % path_output_file)
     np.savez(path_output_file, train=train, valid=valid)
 

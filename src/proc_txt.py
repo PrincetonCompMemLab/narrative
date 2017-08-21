@@ -1,18 +1,27 @@
 import pickle
 import sys
 import numpy as np
+import os
 from utils import *
 
 # extract letters and spaces, and transform to lower case 
-# how: python clean_txt.py input_file_name
+# how: python proc_txt.py input_file_name
 
-# read input file
+# read input args
 _, input_fname = sys.argv
+
+# constant path
 input_path = '../story/'
 output_path ='../story_processed/'
+
+# read input text file
 print('Input text = <%s>' % (input_path+input_fname))
 input_file = open(input_path + input_fname + '.txt', 'r')
 text = input_file.read()
+# make output dir
+output_path = os.path.join(output_path, input_fname)
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 
 # processing 
 text = str2cleanstr(text)

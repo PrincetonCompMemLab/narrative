@@ -5,9 +5,16 @@ import numpy as np
 from sys import argv
 
 #import arguments
+_, input_fname, n_iterations = 'temp', 'poetry', '2'
 _, input_fname, n_iterations = argv
-FILE_FORMAT = '.txt'
 
+# constants 
+FILE_FORMAT = '.txt'
+MARK_END_STATE = True
+END_STATE_MARKER = 'ENDOFSTATE'
+
+
+# helper functions 
 class Transition:
     """Represents a single set of transitions, with a condition"""
     def __init__(self, trans_cond, probs, trans_states):
@@ -50,7 +57,9 @@ states = dict()
 
 f = open(input_fname + FILE_FORMAT)
 
-# Read entities
+# Read entities and their attributes 
+#   each entity has a list of fillers - e.g. Person: ['Olivia', 'Mariko', ...]
+#   each filler has a dict of features - e.g. Mariko : {'Mood': 'nervous', ...}
 assert f.readline().strip() == "Entities", "Spec file must start with Entities"
 f.readline()  # Dashed line
 while True:
@@ -74,6 +83,7 @@ while True:
         inst_line = f.readline().strip()
 
 # Read roles
+#   the role of high-level entity - e.g. Friend: Person 
 f.readline() # Dashed line
 role_line = f.readline().strip()
 while role_line:
@@ -81,7 +91,9 @@ while role_line:
     roles[role[0]] = role[1]
     role_line = f.readline().strip()
 
-# Read States
+# Read States and transitions 
+#   state 
+#   transition 
 assert f.readline().strip() == "States", "States must follow Roles"
 f.readline() # Dashed line
 while True:
@@ -130,22 +142,28 @@ for i in range(int(n_iterations)):
     curr_state = 'BEGIN'
     while True:
         # Output state text with fillers
+        
+        # get a un-filled state 
         text_split = states[curr_state].text.replace(']','[').split('[')
         for i in range(1,len(text_split),2):
             slot = text_split[i].split('.')
             text_split[i] = attributes[grounding[slot[0]]][slot[1]]
+        # get a filled state 
         filled = ''.join(text_split)
         if filled[0] == "\"":
             filled = filled[0] + filled[1].upper() + filled[2:]
         else:
             filled = filled[0].upper() + filled[1:]
+        # add symbolic markers     
+        if MARK_END_STATE: 
+            filled += (' ' + END_STATE_MARKER)
+        # write to text 
         f.write(filled)
         f.write(" ")
-            
+        # stopping criterion     
         if curr_state == 'END':
             f.write("\n\n")
             break
-
         # Sample next state
         curr_state = states[curr_state].sample_next(grounding, attributes)
 
