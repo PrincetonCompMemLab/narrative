@@ -11,7 +11,7 @@ from utils import *
 _, input_fname = sys.argv
 
 # constant
-SHUFFLE_STATES = False
+SHUFFLE_STATES = True
 input_path = '../story/'
 output_path ='../story_processed/'
 train_test_ratio = .9

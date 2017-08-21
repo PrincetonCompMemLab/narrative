@@ -116,9 +116,6 @@ def save_dict(input_dict, dict_name, output_path):
         pickle.dump(input_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print('Write to <%s>' % os.path.join(output_path, 'metadata.txt'))
     json.dump(input_dict, open(os.path.join(output_path, 'metadata.txt'),'w'))
-    
-    
-    
     # testing
     # temp_dict = read_dict(dict_name, input_path=output_path)
     # assert(temp_dict == input_dict)
