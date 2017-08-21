@@ -3,10 +3,10 @@ Entities
 Person: Name, Mood, Hungry, Greeting, Pronoun, Poem
 Olivia, sad, Yes, "Howdy", she, "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons."
 Will, happy, Yes, "Great to see you", he, "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air."
-Mariko, nervous, No, "I am glad you could make it", she, "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong."
+Mariko, nervous, No, "I'm glad you could make it", she, "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong."
 Pradeep, happy, No, "Hey", he, "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab."
-Sarah, nervous, Yes, "Oh hi there", she, "You may write me down in history with your bitter, twisted lies, you may trod me in the very dirt but still, like dust, I will rise."
-Julian, sad, No, "It has been too long", he, "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils."
+Sarah, nervous, Yes, "Oh hi there", she, "You may write me down in history with your bitter, twisted lies, you may trod me in the very dirt but still, like dust, I'll rise."
+Julian, sad, No, "It's been too long", he, "I wandered lonely as a cloud that floats on high o'er vales and hills, when all at once I saw a crowd, A host, of golden daffodils."
 
 Drink: Name, Price
 coffee, 3
@@ -58,7 +58,7 @@ Subject.Mood == "happy": 0.1 Subject_declines, 0.9 Subject_performs
 Default: 0.3 Subject_declines, 0.7 Subject_performs
 
 Subject_declines
-[Subject.Name] had also written a poem, but decided that [Subject.Pronoun] was not in the mood to share it today.
+[Subject.Name] had also written a poem, but decided that [Subject.Pronoun] wasn't in the mood to share it today.
 Default: 1.0 Say_goodbye
 
 Subject_performs

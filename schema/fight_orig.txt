@@ -1,0 +1,112 @@
+Entities
+-----
+Person: Name, Pronoun, Pronoun_possessive, Pronoun_object, Reason_mad, Barista_saying, Violent, Thirsty
+Olivia, she, her, her, learned that her flight to the Bahamas was cancelled due to inclement weather, “Im so sorry you had to experience a coffee crime.”, Yes, No
+Jesse, he, his, him, gotten into a fight with his mom, “Its not everyday you meet a coffee criminal.”, Yes, Yes
+Nick, he, his, him, gotten a parking ticket, “The nectar of the gods makes people do crazy things.”, No, No
+Vera, she, her, her, found her calculus problem set ripped to shreds in her dog’s cage, “Some people will do anything for the coffee fix.”, No, Yes
+Silvia, she, her, her, realized that she had left her phone on the bus, “I think some caffeine would’ve helped that one.”, No, No
+Ben, he, his, him, dropped his keys in a storm drain, “There was no need to worry. The baristas are trained in kung fu.”, Yes, No 
+
+Drink: Name
+coffee
+mocha
+latte
+
+Dessert: Name
+cake
+cookie
+lemonsquare
+muffin
+
+Roles
+-----
+Subject: Person
+Victim: Person
+Barista: Person
+Policeman: Person
+Drink_ordered: Drink
+Dessert_crumbled: Dessert
+
+States
+-----
+BEGIN
+[Subject.Name] walked into the coffee shop angrily after having [Subject.Reason_mad].
+Subject.Thirsty == "Yes": 0.8 Walk_to_front, 0.2 Walk_to_back
+Default: 0.4 Walk_to_front, 0.6 Walk_to_back
+
+Walk_to_front
+[Subject.Pronoun] saw that there was a long line to order, so [Subject.Pronoun] impatiently walked to the front of the line and cut [Victim.Name], the first person in line.
+Victim.Violent == "Yes": 0.8 Step_in_front, 0.2 Say_excuse_me
+Default: 0.5 Step_in_front, 0.5 Say_excuse_me
+
+Walk_to_back
+[Subject.Pronoun] walked to the back of the line and stood impatiently, watching the first person in line, [Victim.Name], staring idly at the menu. Suddenly [Subject.Pronoun] decided to walk to the front of the line and cut [Victim.Pronoun_object].
+Victim.Violent == "Yes": 0.7 Step_in_front, 0.3 Say_excuse_me
+Default: 0.4 Step_in_front, 0.6 Say_excuse_me
+
+Step_in_front
+[Victim.Name] was not having it that day, and [Victim.Pronoun] promptly stepped back in front of [Subject.Name].
+Subject.Violent == "Yes": 0.6 Shove, 0.2 Ignore, 0.2 Subject_stares
+Default: 0.1 Shove, 0.4 Ignore, 0.5 Subject_stares
+
+Say_excuse_me
+[Victim.Name] was astonished and said, “Excuse me?!’ 
+Subject.Violent == "Yes": 0.6 Shove, 0.2 Ignore, 0.2 Subject_stares
+Default: 0.1 Shove, 0.4 Ignore, 0.5 Subject_stares
+
+Ignore
+[Subject.Name] ignored [Victim.Pronoun_object] and proceeded to tell the barista that [Subject.Pronoun] would like a [Drink_ordered.Name].
+Victim.Violent == "Yes": 0.6 X_shove, 0.2 Turn_to_barista, 0.2 X_stare
+Default: 0.3 X_shove, 0.4 Turn_to_barista, 0.3 X_stare
+
+Shove
+[Subject.Name] proceeded to give a slight shove to [Victim.Name].
+Victim.Violent == "Yes": 0.6 X_shove, 0.2 Turn_to_barista, 0.2 X_stare
+Default: 0.3 X_shove, 0.4 Turn_to_barista, 0.3 X_stare
+
+Subject_stares
+[Subject.Name] turned to [Victim.Name] and gave [Victim.Pronoun_object] a very mean look.
+Victim.Violent == "Yes": 0.8 X_shove, 0.1 Turn_to_barista, 0.1 X_stare
+Default: 0.2 X_shove, 0.7 Turn_to_barista, 0.1 X_stare
+
+Turn_to_barista
+[Victim.Name], refusing to engage with [Subject.Pronoun_object], turned to the barista and said, ‘I was first in line!”
+Default: 0.6 Cream_splash, 0.4 Dessert_crumble
+
+X_stare
+[Victim.Name] stared back at [Subject.Name], as though daring [Subject.Pronoun_object] with [Victim.Pronoun_possessive] eyes to do something.[Victim.Name] refusing to engage with [Subject.Name], turned to the barista and said, ‘I was first in line!”
+Default: 0.4 Cream_splash, 0.6 Dessert_crumble
+
+X_shove
+In retaliation, [Victim.Name] pushed [Subject.Name].
+Default: 0.3 Cream_splash, 0.7 Dessert_crumble
+
+Cream_splash
+[Subject.Name] saw a small cup of cream on the counter, picked it up, and splashed it in [Victim.Name]’s face. Everyone in line gasped. [Victim.Name] stood there gaping, cream dripping from [Victim.Pronoun_possessive] chin.
+Subject.Violent == "Yes": 0.8 Call_policeman, 0.2 Barista_orders
+Default: 0.5 Call_policeman, 0.5 Barista_orders
+
+Dessert_crumble
+[Subject.Name] saw a [Dessert_crumbled.Name] sitting like ammo next to the cash register, snatched it, and crumbled it above [Victim.Name]’s head. Everyone in line gasped. [Victim.Name], in shock, didn’t move as crumbs tumbled down [Victim.Pronoun_possessive] ears and shoulders.
+Subject.Violent == "Yes": 0.8 Call_policeman, 0.2 Barista_orders
+Default: 0.3 Call_policeman, 0.7 Barista_orders
+
+Call_policeman
+The barista called over to a policeman standing in line, and [Policeman.Pronoun] ordered [Subject.Name] to leave before anyone pressed charges.
+Default: 0.3 Love_juice, 0.7 Hate_coffee
+
+Barista_orders
+The barista ran out from behind the counter and ordered [Subject.Name] to leave.
+Default: 0.7 Love_juice, 0.3 Hate_coffee
+
+Love_juice
+[Subject.Name] gave [Victim.Name] one last stare, turned, and ran out yelling, “Juice is better, anyway!”
+Default: 1.0 END
+
+Hate_coffee
+[Subject.Name] stared at [Victim.Name] one last time, then stormed out of the coffee shop, yelling, “I hate coffee!”
+Default: 1.0 END
+
+END
+Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed [Victim.Name] a bunch of napkins and gave [Victim.Pronoun_object] a free drink out of sympathy, saying [Barista.Barista_saying]
