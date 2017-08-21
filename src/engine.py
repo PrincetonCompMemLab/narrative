@@ -12,6 +12,8 @@ _, input_fname, n_iterations = argv
 FILE_FORMAT = '.txt'
 MARK_END_STATE = True
 END_STATE_MARKER = 'ENDOFSTATE'
+OUTPUT_PATH = '../story'
+INPUT_PATH  = '../schema'
 
 
 # helper functions 
@@ -55,7 +57,7 @@ entities = dict()
 roles = dict()
 states = dict()
 
-f = open(input_fname + FILE_FORMAT)
+f = open(os.path.join(INPUT_PATH, input_fname) + FILE_FORMAT)
 
 # Read entities and their attributes 
 #   each entity has a list of fillers - e.g. Person: ['Olivia', 'Mariko', ...]
@@ -75,7 +77,8 @@ while True:
     while inst_line:
         # Use csv reader here, to ignore commas inside quotes
         instance = [x for x in reader([inst_line], skipinitialspace=True)][0]
-        assert len(instance) == len(ent_attr), "Instance %s does not match entity spec" % instance[0]
+        assert len(instance) == len(ent_attr), \
+            "Instance %s does not match entity spec" % instance[0]
         entities[ent_name].append(instance[0])
         attributes[instance[0]] = dict()
         for i, a in enumerate(ent_attr):
@@ -125,10 +128,15 @@ f.close()
 
 
 # Generate stories
-output_path = '../story'
-output_fname = os.path.join(output_path, input_fname + '_' + n_iterations + FILE_FORMAT)
+if not os.path.exists(OUTPUT_PATH):
+    os.makedirs(OUTPUT_PATH)
+    print('mkdir: %s', OUTPUT_PATH)
+output_fname = os.path.join(OUTPUT_PATH, input_fname + '_' + n_iterations + FILE_FORMAT)
 f = open(output_fname,'w')
-print('Generate stories: [%s] -> [%s]...' % (input_fname, output_fname))
+print('Generate stories: \n\tschema = %s \n\toutput = %s...'
+      % (os.path.abspath(os.path.join(INPUT_PATH, input_fname)) + FILE_FORMAT,
+         os.path.abspath(output_fname)))
+
 for i in range(int(n_iterations)):
     # Create Grounding
     np.random.seed(i)
