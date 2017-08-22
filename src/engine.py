@@ -142,12 +142,14 @@ def open_output_file(input_fname, n_iterations):
     return f_output
 
 
-def write_stories(schema_info, n_iterations, f):
+def write_stories(schema_info, n_iterations, f, rand_seed=0):
     (attributes, entities, roles, states) = schema_info
     # Generate stories
     for i in range(n_iterations):
         # Create Grounding
         np.random.seed(i)
+        if n_iterations == 1:
+            np.random.seed(rand_seed)
         grounding = dict()
         avail_entities = deepcopy(entities)
         for role in sorted(roles.keys()):

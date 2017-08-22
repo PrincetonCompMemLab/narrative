@@ -25,8 +25,10 @@ alternating = alternating[0]
 n_input_files = len(input_fnames)
 name_cat = '_'.join(input_fnames)
 
+
 # sample stories from schema
 def main():
+    rand_seed = 0
     if not alternating:
         if n_input_files == 1:
         # get a handle on the output file
@@ -35,32 +37,31 @@ def main():
             f_out = open_output_file(name_cat + '_block', n_iterations)
         else:
             raise ValueError('n_input_files must >= 1')
-        # write stories
+        # write stories block-wise
         for i in range(n_input_files):
             input_fname = input_fnames[i]
             # read schema file
             schema_info = read_schema_file(input_fname)
             # write to the output file
             write_stories(schema_info, n_iterations, f_out)
-        # close the output
-        f_out.close()
     else:
         if alternating and n_input_files < 2:
             raise AssertionError('Need at least 2 files to alternate!')
         # get a handle on the output file
         f_out = open_output_file(name_cat+'_alt', n_iterations)
-        # read all schema file
+        # read all schema files
         schema_info = []
         for i in range(n_input_files):
             schema_info.append(read_schema_file(input_fnames[i]))
-        # write story with alternating schema info
+        # write stories with alternating schema info
         for i in range(n_input_files * n_iterations):
             f_idx = np.mod(i, n_input_files)
             # write to the output file
-            write_stories(schema_info[f_idx], 1, f_out)
+            write_stories(schema_info[f_idx], 1, f_out, rand_seed)
+            rand_seed += 1
 
-        # close the output
-        f_out.close()
+    # close the output
+    f_out.close()
 
 if __name__ == "__main__":
     main()
