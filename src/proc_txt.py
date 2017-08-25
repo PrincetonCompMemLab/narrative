@@ -11,7 +11,7 @@ from utils import *
 _, input_fname = sys.argv
 
 # constant
-SHUFFLE_STATES = True
+SHUFFLE_STATES = False
 input_path = '../story/'
 output_path ='../story_processed/'
 train_test_ratio = .9
@@ -44,8 +44,9 @@ char_output_fname = input_fname + '_clean.txt'
 write2file(text, char_output_fname, output_path)
 
 # sys.exit('STOP - word level output')
-word_output_fname = input_fname + '_word.txt'
-write2file(index_string, word_output_fname, output_path)
+# word_output_fname = input_fname + '_word.txt'
+# write2file(index_string, word_output_fname, output_path)
+write2file(index_string, 'words.txt', output_path)
 # save .npz word file and its dictionary 
 save_list_of_int_to_npz(index, input_fname, output_path, train_test_ratio)
 save_dict(word_to_id, input_fname, output_path)

@@ -109,8 +109,9 @@ def write2file(input_text, output_fname, output_path):
 
 
 def save_dict(input_dict, dict_name, output_path):
-    dict_name = dict_name + '_word_dict.pickle'
-    write_path = os.path.join(output_path, dict_name)
+    # dict_name = dict_name + '_word_dict.pickle'
+    # write_path = os.path.join(output_path, dict_name)
+    write_path = os.path.join(output_path, 'word_dict.pickle')
     print('Write to <%s>' % write_path)
     with open(write_path, 'wb') as handle:
         pickle.dump(input_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -130,17 +131,17 @@ def read_dict(dict_name, input_path):
 
 
 def save_list_of_int_to_npz(list_of_int, fname, output_path, train_ratio):
-    fname = fname + '_word'
+    # fname = fname + '_word'
     # count n_tokens
     num_tokens = len(list_of_int)
     # split training and validation sets
     train_size = int(num_tokens * train_ratio)
     valid_size = int(num_tokens * (1 - train_ratio))
-    train = list_of_int[: train_size]
-    valid = list_of_int[: -valid_size]
+    train = list_of_int[-train_size:]
+    valid = list_of_int[:valid_size]
 
     # write it to a .npz file
-    path_output_file = os.path.join(output_path, fname)
+    path_output_file = os.path.join(output_path, 'words')
     print('Write to <%s.npz>' % path_output_file)
     np.savez(path_output_file, train=train, valid=valid)
 
