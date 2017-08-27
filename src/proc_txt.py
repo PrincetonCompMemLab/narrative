@@ -14,10 +14,9 @@ _, input_fname = sys.argv
 # constant
 input_path = '../story/'
 output_path ='../story_processed/'
-train_test_ratio = .8
+train_test_ratio = .9
 
 def get_word_level_rep(text, output_path, train_test_ratio):
-
   # convert to word-level representation
   list_of_words = text2list_of_words(text)
   indices, _, words_dict = list_of_words_2_one_hot(list_of_words)
@@ -36,32 +35,24 @@ def get_word_level_rep(text, output_path, train_test_ratio):
 print('Input text = <%s>' % os.path.abspath(os.path.join(input_path,input_fname)))
 input_file = open(input_path + input_fname + '.txt', 'r')
 text = input_file.read()
+
 # get output dir name and makr output dirs
 output_path = os.path.join(output_path, input_fname)
 make_output_dirs(output_path)
-
-
+# save raw input file
 write2file(text, 'raw.txt', output_path)
 
 
 # remove pun markers...
 text = str2cleanstr(text)
-
-# shuffle text
+# create shuffling
 text_shufw = shuffle_words_in_state(text)
 text_shufs = shuffle_states_in_story(text)
 
 # conver to lower case
 [text, text_shufw, text_shufs] = to_lower_case([text, text_shufw, text_shufs])
 
-
 print('')
-
-
 # save word level representation
 get_word_level_rep(text, os.path.join(output_path, 'shuffle_none'), train_test_ratio)
 get_word_level_rep(text_shufw, os.path.join(output_path, 'shuffle_words'), train_test_ratio)
-# # save word level representation - without end markers
-[text, text_shufw, text_shufs] = remove_end_markers([text, text_shufw, text_shufs])
-# get_word_level_rep(text, os.path.join(output_path, 'without_end/shuffle_none'), train_test_ratio)
-# get_word_level_rep(text_shufw, os.path.join(output_path, 'without_end/shuffle_words'), train_test_ratio)

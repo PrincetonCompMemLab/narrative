@@ -5,7 +5,6 @@ import numpy as np
 import itertools
 import re
 import sys
-import copy
 
 def str2cleanstr(string):
     print('Removing punctuation marks from text...')
