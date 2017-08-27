@@ -8,9 +8,9 @@ import numpy as np
 MARK_END_STATE = True
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
+END_STORY_MARKER = 'ENDOFSTORY'
 OUTPUT_PATH = '../story'
 INPUT_PATH  = '../schema'
-
 
 # helper functions 
 class Transition:
@@ -50,12 +50,10 @@ class State:
 def read_schema_file(input_fname):
     print('Schema = %s' %
         os.path.abspath(os.path.join(INPUT_PATH, input_fname)) + FILE_FORMAT)
-
     attributes = dict()
     entities = dict()
     roles = dict()
     states = dict()
-
     f = open(os.path.join(INPUT_PATH, input_fname) + FILE_FORMAT)
 
     # Read entities and their attributes
@@ -160,7 +158,6 @@ def write_stories(schema_info, n_iterations, f, rand_seed=0):
         curr_state = 'BEGIN'
         while True:
             # Output state text with fillers
-
             # get a un-filled state
             text_split = states[curr_state].text.replace(']','[').split('[')
             for i in range(1,len(text_split),2):
@@ -174,7 +171,6 @@ def write_stories(schema_info, n_iterations, f, rand_seed=0):
                 filled = filled[0].upper() + filled[1:]
 
             # add symbolic markers
-            # if SHUFFLE_WORDS:
             if MARK_END_STATE:
                 filled += (' ' + END_STATE_MARKER)
             # write to text
@@ -182,10 +178,11 @@ def write_stories(schema_info, n_iterations, f, rand_seed=0):
             f.write(" ")
             # stopping criterion
             if curr_state == 'END':
-                f.write("\n\n")
+                f.write(END_STORY_MARKER+" \n\n")
                 break
             # Sample next state
             curr_state = states[curr_state].sample_next(grounding, attributes)
+
 
 
 def str2bool(v):
