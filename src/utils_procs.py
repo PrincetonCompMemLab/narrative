@@ -44,19 +44,27 @@ def list_of_words_2_one_hot(list_of_words):
     tokens_docs = [doc.split(" ") for doc in list_of_words]
     # convert list of of token-lists to one flat list of tokens
     all_tokens = itertools.chain.from_iterable(tokens_docs)
-    #create a dictionary that maps word to id of word
-    word_to_id = {token: idx for idx, token in enumerate(set(all_tokens))}
+    #create a dictionary that maps word to id of word...
+    # while ensure the end markers are at the end of the dict
+    set_all_tokens = set(all_tokens)
+    num_all_tokens = len(set_all_tokens)
+    set_all_tokens.remove(END_STATE_MARKER.lower())
+    set_all_tokens.remove(END_STORY_MARKER.lower())
+    words_dict = {token: idx for idx, token in enumerate(set_all_tokens)}
+    words_dict[END_STATE_MARKER.lower()] = max(words_dict.values()) + 1
+    words_dict[END_STORY_MARKER.lower()] = max(words_dict.values()) + 1
+    assert len(words_dict) == num_all_tokens
     # convert token lists to token-id lists
-    token_ids = [[word_to_id[token] for token in tokens_doc] for tokens_doc in tokens_docs]
+    token_ids = [[words_dict[token] for token in tokens_doc] for tokens_doc in tokens_docs]
     # convert list of token-id lists to one-hot representation
-    vec = OneHotEncoder(n_values=len(word_to_id))
+    vec = OneHotEncoder(n_values=len(words_dict))
     X = vec.fit_transform(token_ids)
     # reformat the output
     token_ids = list_of_singular_list_to_list_of_val(token_ids)
     X = X.toarray()
     (doc_len, n_tokens) = np.shape(X)
     print('\t Doc length = %d, Num token = %d' % (doc_len, n_tokens))
-    return token_ids, X, word_to_id
+    return token_ids, X, words_dict
 
 
 def list_of_int_to_int_string(list_of_int):

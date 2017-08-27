@@ -43,7 +43,6 @@ def read_dict(dict_name, input_path):
 
 
 def save_list_of_int_to_npz(list_of_int, words_dict, output_path, train_ratio):
-
     # get the index for the end marker
     end_story_marker_ind = words_dict[END_STORY_MARKER.lower()]
     end_state_marker_ind = words_dict[END_STATE_MARKER.lower()]
