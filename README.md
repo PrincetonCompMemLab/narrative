@@ -1,4 +1,4 @@
-resources can be found on the <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">wiki page</a>
+Some resources (data and papers) can be found on the <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
 
 1. to generate a bunch of stories: 
   - input: a schema (e.g.: schema/poetry.txt)
