@@ -1,7 +1,22 @@
-resources can be found on the <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">wiki page</a>
+## Resources 
 
-1. to generate a bunch of stories: 
-in the terminal, cd to `\src`, and run the cmd with the following format 
+Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
+
+
+## The coffee shop world "engine" 
+
+The "engine" takes a schema and generates a bunch of stories! Concretely, a schema is a graph {V,E} representing some states and transitions. Each state is a sentence that can be binded with some role fillers. For example, 
+
+
+**1. Generate stories** `run_engine.py`
+
+Currently, we have two schema: "poetry reading" and "fight". Here's an exmaple of poetry reading: 
+
+*Mariko walked into the coffee shop on poetry night. She found an empty chair next to Sarah. "Oh hi there Mariko!" said Sarah. "I am glad you could make it Sarah!" Mariko replied. Olivia, who was the emcee for tonight, walked to the front of the room and introduced the first poet, Julian. Julian stepped up to the microphone and read the poem that he had written: "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils." The crowd snapped their fingers politely. Mariko had also written a poem, but decided that she was not in the mood to share it today. After all the poets had performed, Mariko and Sarah said their goodbyes and walked toward the door. Mariko made a mental note to come back again next week.*
+
+**how to use**
+
+In the terminal, cd to `\src`, and run the cmd with the following format 
 ```
 python run_engine.py [schema_file_1] [schema_file_2] ... [schema_file_k] [n_iter] [alternating]"
 ```
@@ -11,8 +26,20 @@ python run_engine.py poetry fight 2 True
 ```
 After running the cmd, you will see a file called `schema_file_n_iter.txt` under the `story/` directory
 
-2. to clean and post-process the stories
-having generated a text file contains a bunch of stories (from step 1) under the `story/` directory, in the terminal, cd to `\src`, and run the cmd with the following format 
+
+**2. post-processing** `proc_txt.py`
+
+Functionalities (Let me know if you have more suggestions - qlu@princeton.edu): 
+- [x] remove punctuations marks
+- [x] transform characters to lower case
+- [x] insert state/story boundaries
+- [x] convert character representations to word representations
+- [x] shuffle words within states 
+- [ ] shuffle sentences within stories
+
+**how to use**
+
+Having generated a text file contains a bunch of stories (from step 1) under the `story/` directory, in the terminal, cd to `\src`, and run the cmd with the following format 
 ```
 python proc_txt.py input_file
 ```
