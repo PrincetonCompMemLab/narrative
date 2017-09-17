@@ -2,6 +2,12 @@
 
 Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
 
+## Slides from Sep 2017 Princeton meeting:  
+
+History, current status, and future of coffee shop world (7:30-8:15pm)
+- Alex - The coffee shop story generator - slides 
+- Andre - Behavioral experiments - slides 
+- Qihong - Neural networks for schema learning - [slides](https://www.dropbox.com/s/bmdlookf7xe14ul/0917-MURI_QL.pdf?dl=0) 
 
 ## The coffee shop world "engine" 
 
