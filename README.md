@@ -32,19 +32,11 @@ python run_engine.py poetry fight 2 True
 ```
 After running the cmd, you will see a file called `schema_file_n_iter.txt` under the `story/` directory
 
-
-**2. post-processing** `proc_txt.py`
-
-Functionalities (Let me know if you have more suggestions - qlu@princeton.edu): 
-- [x] separate training vs. test set and save to .npz file 
-- [x] remove punctuations marks
-- [x] transform characters to lower case
-- [x] insert state/story boundaries
-- [x] convert character representations to word representations
-- [x] shuffle words within states 
-- [ ] shuffle sentences within stories
+Functionalties to be added: 
 - [ ] plot the graph of the schema (markov model)
 - [ ] add "higher order schema"
+
+**2. post-processing** `proc_txt.py`
 
 **how to use**
 
@@ -57,3 +49,13 @@ where `input_file` is the stories file you got from step 1. For example, the fol
 python proc_txt.py poetry_10
 ```
 This procedure generates a directory `input_file/` under the `story_processed/` directory
+
+
+Functionalities (Let me know if you have more suggestions - qlu@princeton.edu): 
+- [x] separate training vs. test set and save to .npz file 
+- [x] remove punctuations marks
+- [x] transform characters to lower case
+- [x] insert state/story boundaries
+- [x] convert character representations to word representations
+- [x] shuffle words within states 
+- [ ] shuffle sentences within stories
