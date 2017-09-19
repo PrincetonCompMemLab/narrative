@@ -49,7 +49,7 @@ python proc_txt.py input_file
 ```
 where `input_file` is the stories file you got from step 1. For example, the following cmd is valid:
 ```
-python proc_txt.py poetry_10
+python proc_txt.py poetry_2
 ```
 This procedure generates a directory `input_file/` under the `story_processed/` directory
 
