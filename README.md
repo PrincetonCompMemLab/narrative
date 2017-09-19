@@ -1,6 +1,7 @@
 ## Resources 
 
 Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
+<br><br>
 
 ## Slides from Sep 2017 Princeton meeting:  
 
@@ -8,11 +9,12 @@ History, current status, and future of coffee shop world (7:30-8:15pm)
 - Alex - The coffee shop story generator - [slides](https://www.dropbox.com/s/3zk94z8fwuoqmsk/storygeneration_MURI.pdf?dl=0) 
 - Andre - Behavioral experiments - slides 
 - Qihong - Neural networks for schema learning - [slides](https://www.dropbox.com/s/bmdlookf7xe14ul/0917-MURI_QL.pdf?dl=0) 
+<br><br>
 
 ## The coffee shop world "engine" 
 
 The "engine" takes a schema and generates a bunch of stories! Concretely, a schema is a graph {V,E} representing some states and transitions. Each state is a sentence that can be binded with some role fillers. For example, 
-
+<br>
 
 **1. Generate stories** `run_engine.py`
 
@@ -35,6 +37,7 @@ After running the cmd, you will see a file called `schema_file_n_iter.txt` under
 **Functionalties to be added**: 
 - [ ] plot the graph of the schema (markov model)
 - [ ] add "higher order schema"
+<br><br><br>
 
 **2. post-processing** `proc_txt.py`
 
