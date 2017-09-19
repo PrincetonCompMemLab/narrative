@@ -62,5 +62,6 @@ This procedure generates a directory `input_file/` under the `story_processed/` 
 - [x] convert character representations to word representations
 - [x] shuffle words within states 
 - [ ] shuffle sentences within stories
+- [ ] generate dict for schema file directly (indep from the sampled stories...)
 
 Let me know if you have more suggestions - qlu@princeton.edu
