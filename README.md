@@ -1,6 +1,7 @@
 ## Resources 
 
 Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
+<br><br>
 
 ## Slides from Sep 2017 Princeton meeting:  
 
@@ -8,11 +9,12 @@ History, current status, and future of coffee shop world (7:30-8:15pm)
 - Alex - The coffee shop story generator - [slides](https://www.dropbox.com/s/3zk94z8fwuoqmsk/storygeneration_MURI.pdf?dl=0) 
 - Andre - Behavioral experiments - slides 
 - Qihong - Neural networks for schema learning - [slides](https://www.dropbox.com/s/bmdlookf7xe14ul/0917-MURI_QL.pdf?dl=0) 
+<br><br>
 
 ## The coffee shop world "engine" 
 
 The "engine" takes a schema and generates a bunch of stories! Concretely, a schema is a graph {V,E} representing some states and transitions. Each state is a sentence that can be binded with some role fillers. For example, 
-
+<br>
 
 **1. Generate stories** `run_engine.py`
 
@@ -32,16 +34,12 @@ python run_engine.py poetry fight 2 True
 ```
 After running the cmd, you will see a file called `schema_file_n_iter.txt` under the `story/` directory
 
+**Functionalties to be added**: 
+- [ ] plot the graph of the schema (markov model)
+- [ ] add "higher order schema"
+<br><br><br>
 
 **2. post-processing** `proc_txt.py`
-
-Functionalities (Let me know if you have more suggestions - qlu@princeton.edu): 
-- [x] remove punctuations marks
-- [x] transform characters to lower case
-- [x] insert state/story boundaries
-- [x] convert character representations to word representations
-- [x] shuffle words within states 
-- [ ] shuffle sentences within stories
 
 **how to use**
 
@@ -51,6 +49,19 @@ python proc_txt.py input_file
 ```
 where `input_file` is the stories file you got from step 1. For example, the following cmd is valid:
 ```
-python proc_txt.py poetry_10
+python proc_txt.py poetry_2
 ```
 This procedure generates a directory `input_file/` under the `story_processed/` directory
+
+
+**Functionalities**: 
+- [x] separate training vs. test set and save to .npz file 
+- [x] remove punctuations marks
+- [x] transform characters to lower case
+- [x] insert state/story boundaries
+- [x] convert character representations to word representations
+- [x] shuffle words within states 
+- [ ] shuffle sentences within stories
+- [ ] generate dict for schema file directly (indep from the sampled stories...)
+
+Let me know if you have more suggestions - qlu@princeton.edu
