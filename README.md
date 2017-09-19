@@ -36,12 +36,15 @@ After running the cmd, you will see a file called `schema_file_n_iter.txt` under
 **2. post-processing** `proc_txt.py`
 
 Functionalities (Let me know if you have more suggestions - qlu@princeton.edu): 
+- [x] separate training vs. test set and save to .npz file 
 - [x] remove punctuations marks
 - [x] transform characters to lower case
 - [x] insert state/story boundaries
 - [x] convert character representations to word representations
 - [x] shuffle words within states 
 - [ ] shuffle sentences within stories
+- [ ] plot the graph of the schema (markov model)
+- [ ] add "higher order schema"
 
 **how to use**
 
