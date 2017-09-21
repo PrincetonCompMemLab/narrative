@@ -6,9 +6,9 @@ Some related papers and data sets can be found <a href = "https://github.com/Pri
 ## Slides from Sep 2017 Princeton meeting:  
 
 History, current status, and future of coffee shop world (7:30-8:15pm)
-- Alex - The coffee shop story generator - [slides](https://www.dropbox.com/s/3zk94z8fwuoqmsk/storygeneration_MURI.pdf?dl=0) 
-- Andre - Behavioral experiments - [slides](https://www.dropbox.com/s/xnz78i0pa5xjlzf/MURI_exp.pptx?dl=0) 
-- Qihong - Neural networks for schema learning - [slides](https://www.dropbox.com/s/bmdlookf7xe14ul/0917-MURI_QL.pdf?dl=0) 
+- Alex - The coffee shop story generator - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
+- Andre - Behavioral experiments - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
+- Qihong - Neural networks for schema learning - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
 <br><br>
 
 ## The coffee shop world "engine" 
