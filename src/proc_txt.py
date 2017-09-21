@@ -18,8 +18,7 @@ train_test_ratio = .9
 
 def get_word_level_rep(text, output_path, train_test_ratio):
   # convert to word-level representation
-  list_of_words = text2list_of_words(text)
-  indices, _, words_dict = list_of_words_2_one_hot(list_of_words)
+  indices, _, words_dict = text_2_one_hot(text)
   index_string = list_of_int_to_int_string(indices)
 
   # save .npz word file and its dictionary
@@ -48,6 +47,12 @@ text = str2cleanstr(text)
 # create shuffling
 text_shufw = shuffle_words_in_state(text)
 text_shufs = shuffle_states_in_story(text)
+# print(text)
+# print('\n\n\n')
+# print(text_shufw)
+# print('\n\n\n')
+# print(text_shufs)
+# sys.exit('STOP')
 
 # conver to lower case
 [text, text_shufw, text_shufs] = to_lower_case([text, text_shufw, text_shufs])
@@ -56,3 +61,4 @@ print('')
 # save word level representation
 get_word_level_rep(text, os.path.join(output_path, 'shuffle_none'), train_test_ratio)
 get_word_level_rep(text_shufw, os.path.join(output_path, 'shuffle_words'), train_test_ratio)
+get_word_level_rep(text_shufs, os.path.join(output_path, 'shuffle_states'), train_test_ratio)
