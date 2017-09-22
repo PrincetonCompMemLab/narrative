@@ -62,5 +62,6 @@ This procedure generates a directory `input_file/` under the `story_processed/` 
 - [x] convert character representations to word representations
 - [x] shuffle/reverse the order of words within each state 
 - [x] shuffle/reverse the order of sentences within each story
+    - [ ] shuffle/reverse every k-words segment (Amy)
 
 Let me know if you have more suggestions - qlu@princeton.edu
