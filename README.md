@@ -1,7 +1,12 @@
+## Notification: 
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) Since the coffee shop world generator is under active development, 
+the usage might change every once in awhile... I will try my best to keep the documentation up to date! 
+
 ## Resources 
 
 Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
 <br><br>
+
 
 ## Slides from Sep 2017 Princeton meeting:  
 
