@@ -61,7 +61,7 @@ This procedure generates a directory `input_file/` under the `story_processed/` 
 
 **Functionalities**: 
 - [x] separate training vs. test set and save to .npz file 
-- [x] remove punctuations marks
+- [x] remove punctuation marks
 - [x] transform characters to lower case
 - [x] insert state/story boundaries
 - [x] convert character representations to word representations
