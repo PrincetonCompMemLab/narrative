@@ -144,14 +144,10 @@ def open_output_file(input_fname, n_iterations, n_repeats):
 
 
 def write_stories(schema_info, f, rand_seed, n_repeats):
-    # (attributes, entities, roles, states) = schema_info
     # Generate stories
     for i in range(n_repeats):
-        print(rand_seed)
         np.random.seed(rand_seed)
-
         write_one_story(schema_info, f)
-
         # increment the seed, so that every story uses a different seed value
         # but different runs of run_engine.py use the same sequence of seed
         rand_seed += 1
