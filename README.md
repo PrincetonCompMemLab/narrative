@@ -60,8 +60,8 @@ This procedure generates a directory `input_file/` under the `story_processed/` 
 - [x] transform characters to lower case
 - [x] insert state/story boundaries
 - [x] convert character representations to word representations
-- [x] shuffle words within states 
-- [ ] shuffle sentences within stories
-- [ ] generate dict for schema file directly (indep from the sampled stories...)
+- [x] shuffle/reverse the order of words within each state 
+- [x] shuffle/reverse the order of sentences within each story
+    - [ ] shuffle/reverse every k-words segment (Amy)
 
 Let me know if you have more suggestions - qlu@princeton.edu
