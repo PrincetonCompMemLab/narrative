@@ -14,6 +14,7 @@ def str2cleanstr(string):
             cleaned_txt += character
     return cleaned_txt
 
+
 def to_lower_case(list_of_string):
     print('Convert text to lower case...')
     list_of_string_lower = []
@@ -21,12 +22,14 @@ def to_lower_case(list_of_string):
       list_of_string_lower.append(string.lower())
     return list_of_string_lower
 
+
 def text2list_of_words(text):
     print('Convert text to a list of words...')
     return re.sub("[^\w]", " ", text).split()
 
 
-def list_of_words_2_one_hot(list_of_words):
+def text_2_one_hot(text):
+    list_of_words = text2list_of_words(text)
     # helper function
     def list_of_singular_list_to_list_of_val(input_list):
         out_list = []
@@ -46,7 +49,7 @@ def list_of_words_2_one_hot(list_of_words):
     all_tokens = itertools.chain.from_iterable(tokens_docs)
     #create a dictionary that maps word to id of word...
     # while ensure the end markers are at the end of the dict
-    set_all_tokens = set(all_tokens)
+    set_all_tokens = sorted(set(all_tokens))
     num_all_tokens = len(set_all_tokens)
     set_all_tokens.remove(END_STATE_MARKER.lower())
     set_all_tokens.remove(END_STORY_MARKER.lower())
@@ -76,7 +79,7 @@ def list_of_int_to_int_string(list_of_int):
     return int_string
 
 
-def shuffle_words_in_state(text):
+def shuffle_words_in_state(text, scramble_type = 'reverse'):
     print('Shuffle the words (within each state) in the story ...')
     # split the input story to sentences, w.r.t END_STATE_MARKER
     states_list = text.split(END_STATE_MARKER)
@@ -90,10 +93,11 @@ def shuffle_words_in_state(text):
             if cur_state_split[0] == END_STORY_MARKER:
                 # pop end_story -> shuffle -> add it back
                 cur_state_split.pop(0)
-                shuffle(cur_state_split)
+                cur_state_split = scramble_list(cur_state_split)
+
                 cur_state_split.insert(0, END_STORY_MARKER)
             else:
-                shuffle(cur_state_split)
+                cur_state_split = scramble_list(cur_state_split)
             # recombine to a sentence
             shuf_cur_state = ' '.join(cur_state_split)
             shuf_cur_state += (' ' + END_STATE_MARKER + ' ')
@@ -108,8 +112,67 @@ def shuffle_words_in_state(text):
 
 
 def shuffle_states_in_story(text):
-    print('oops Q hasn\'t implement state shuffling!!!')
-    return ''
+    '''
+    stories - state level scrambling
+    :param text: a bunch of stories
+    :return: a bunch of state-scrambled stories
+    '''
+    print('Shuffle the states within each story ...')
+    # get the list of stories
+    stories_list = text.split(END_STORY_MARKER)
+    if ' ' in stories_list: stories_list.remove(' ')
+    if '' in stories_list:  stories_list.remove('')
+
+    # shuffle states within story_i, for all i
+    n_stories = len(stories_list)
+    shuf_storys_list = []
+    for i in range(n_stories):
+        scrambled_story = scramble_states_in_one_story(stories_list[i])
+        scrambled_story += END_STORY_MARKER + ' '
+        shuf_storys_list.append(scrambled_story)
+    # recombind all stories
+    output = ''.join(shuf_storys_list)
+    # convert all space-like characters to single spaces
+    re.sub('\s+', ' ', output).strip()
+
+    return output
+
+
+def scramble_states_in_one_story(story_text, scramble_type = 'reverse'):
+    '''
+    turn a story to a state-shuffled story
+    :param story_text: any story, represented by a string of text
+    :return: a state-shuffled story
+    '''
+    states_list = story_text.split(END_STATE_MARKER+' ')
+    if ' ' in states_list:  states_list.remove(' ')
+    if '' in states_list:  states_list.remove('')
+
+    # scramble the states!
+    states_list = scramble_list(states_list, scramble_type)
+
+    # recombine the story
+    scrambled_story = ''
+    for i in range(len(states_list)):
+        scrambled_story += states_list[i] + END_STATE_MARKER
+        if i != len(states_list): scrambled_story += ' '
+    return scrambled_story
+
+
+def scramble_list(list, scramble_type = 'reverse'):
+    '''
+    scramble a list according to scramble_type
+    :param list:
+    :param scramble_type:
+    :return:
+    '''
+    if scramble_type == 'shuffle':
+        shuffle(list)
+    elif scramble_type == 'reverse':
+        list = list[::-1]
+    else:
+        raise ValueError('unrecognizable scramble_type!!!')
+    return list
 
 
 def remove_end_markers(text_list):
