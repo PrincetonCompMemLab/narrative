@@ -3,6 +3,7 @@ from copy import deepcopy
 import os
 import argparse
 import numpy as np
+import sys
 
 # constants
 MARK_END_STATE = True
@@ -130,59 +131,68 @@ def mkdir(OUTPUT_PATH):
         os.makedirs(OUTPUT_PATH)
         print('mkdir: %s', OUTPUT_PATH)
 
-def open_output_file(input_fname, n_iterations):
+def open_output_file(input_fname, n_iterations, n_repeats):
     n_iterations = str(n_iterations)
+    n_repeats = str(n_repeats)
     mkdir(OUTPUT_PATH)
     # get a handle on the output file
-    output_fname = os.path.join(OUTPUT_PATH, input_fname + '_' + n_iterations + FILE_FORMAT)
+    output_fname = os.path.join(OUTPUT_PATH, input_fname
+                                + '_' + n_iterations + '_' + n_repeats + FILE_FORMAT)
     f_output = open(output_fname, 'w')
     print('Output = %s' % (os.path.abspath(output_fname)))
     return f_output
 
 
-def write_stories(schema_info, n_iterations, f, rand_seed=0):
-    (attributes, entities, roles, states) = schema_info
+def write_stories(schema_info, f, rand_seed, n_repeats):
+    # (attributes, entities, roles, states) = schema_info
     # Generate stories
-    for i in range(n_iterations):
-        # Create Grounding
-        np.random.seed(i)
-        if n_iterations == 1:
-            np.random.seed(rand_seed)
-        grounding = dict()
-        avail_entities = deepcopy(entities)
-        for role in sorted(roles.keys()):
-            grounding[role] = np.random.choice(avail_entities[roles[role]])
-            avail_entities[roles[role]].remove(grounding[role])
+    for i in range(n_repeats):
+        print(rand_seed)
+        np.random.seed(rand_seed)
 
-        # Loop through states
-        curr_state = 'BEGIN'
-        while True:
-            # Output state text with fillers
-            # get a un-filled state
-            text_split = states[curr_state].text.replace(']','[').split('[')
-            for i in range(1,len(text_split),2):
-                slot = text_split[i].split('.')
-                text_split[i] = attributes[grounding[slot[0]]][slot[1]]
-            # get a filled state
-            filled = ''.join(text_split)
-            if filled[0] == "\"":
-                filled = filled[0] + filled[1].upper() + filled[2:]
-            else:
-                filled = filled[0].upper() + filled[1:]
+        write_one_story(schema_info, f)
 
-            # add symbolic markers
-            if MARK_END_STATE:
-                filled += (' ' + END_STATE_MARKER)
-            # write to text
-            f.write(filled)
-            f.write(" ")
-            # stopping criterion
-            if curr_state == 'END':
-                f.write(END_STORY_MARKER+" \n\n")
-                break
-            # Sample next state
-            curr_state = states[curr_state].sample_next(grounding, attributes)
+        # increment the seed, so that every story uses a different seed value
+        # but different runs of run_engine.py use the same sequence of seed
+        rand_seed += 1
+    return rand_seed
 
+
+def write_one_story(schema_info, f):
+    (attributes, entities, roles, states) = schema_info
+    grounding = dict()
+    avail_entities = deepcopy(entities)
+    for role in sorted(roles.keys()):
+        grounding[role] = np.random.choice(avail_entities[roles[role]])
+        avail_entities[roles[role]].remove(grounding[role])
+
+    # Loop through states
+    curr_state = 'BEGIN'
+    while True:
+        # Output state text with fillers
+        # get a un-filled state
+        text_split = states[curr_state].text.replace(']', '[').split('[')
+        for i in range(1, len(text_split), 2):
+            slot = text_split[i].split('.')
+            text_split[i] = attributes[grounding[slot[0]]][slot[1]]
+        # get a filled state
+        filled = ''.join(text_split)
+        if filled[0] == "\"":
+            filled = filled[0] + filled[1].upper() + filled[2:]
+        else:
+            filled = filled[0].upper() + filled[1:]
+
+        # add symbolic markers
+        if MARK_END_STATE:
+            filled += (' ' + END_STATE_MARKER)
+        # write to text
+        f.write(filled+" ")
+        # stopping criterion
+        if curr_state == 'END':
+            f.write(END_STORY_MARKER + " \n\n")
+            break
+        # Sample next state
+        curr_state = states[curr_state].sample_next(grounding, attributes)
 
 
 def str2bool(v):

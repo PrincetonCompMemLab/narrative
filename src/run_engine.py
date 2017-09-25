@@ -11,60 +11,43 @@ parser = argparse.ArgumentParser()
 parser.add_argument("schema_files", nargs='+', type=str)
 parser.add_argument("n_iterations", nargs=1, type=int,
                     help = 'n_samples from a given schema file')
-parser.add_argument("alternating", nargs=1, type=str2bool, default=False,
-                    help='if true, gen stories alternatingly between k input schema files')
+parser.add_argument("n_consecutive_repeats", nargs=1, type=int,
+                    help = 'n_consecutive_repeats of the same schema')
 
 # process arguments
 args = vars(parser.parse_args())
 print(args)
 input_fnames = args.get('schema_files')
-n_iterations = args.get('n_iterations')
-alternating = args.get('alternating')
-n_iterations = n_iterations[0]
-alternating = alternating[0]
+n_iterations = args.get('n_iterations')[0]
+n_repeats = args.get('n_consecutive_repeats')[0]
+
 n_input_files = len(input_fnames)
 names_concat = '_'.join(input_fnames)
 
+rand_seed = 0
+
+# if there is only one 1 schema file, repeat & iter are the same thing
+if n_input_files == 1:
+    n_iterations = n_iterations * n_repeats
+    n_repeats = 1
 
 # sample stories from schema
-def main():
-    rand_seed = 0
-    alt_repeat = 1
-    # generate "block"
-    if not alternating:
-        if n_input_files == 1:
-        # get a handle on the output file
-            f_out = open_output_file(input_fnames[0], n_iterations)
-        elif n_input_files > 1:
-            f_out = open_output_file(names_concat + '_block', n_iterations)
-        else:
-            raise ValueError('n_input_files must >= 1')
-        # write stories block-wise
-        for i in range(n_input_files):
-            input_fname = input_fnames[i]
-            # read schema file
-            schema_info = read_schema_file(input_fname)
-            # write to the output file
-            write_stories(schema_info, n_iterations, f_out)
-    # alternating schema
-    else:
-        if alternating and n_input_files < 2:
-            raise AssertionError('Need at least 2 files to alternate!')
-        # get a handle on the output file
-        f_out = open_output_file(names_concat+'_alt', n_iterations)
-        # read all schema files
-        schema_info = []
-        for i in range(n_input_files):
-            schema_info.append(read_schema_file(input_fnames[i]))
-        # write stories with alternating schema info
-        for i in range(n_input_files * n_iterations):
-            f_idx = np.mod(i, n_input_files)
-            # write to the output file
-            write_stories(schema_info[f_idx], alt_repeat, f_out, rand_seed)
-            rand_seed += 1
+def main(rand_seed):
 
-    # close the output
+    # get a handle on the output file
+    f_out = open_output_file(names_concat, n_iterations, n_repeats)
+    # read all schema files
+    schema_info = []
+    for i in range(n_input_files):
+        schema_info.append(read_schema_file(input_fnames[i]))
+
+    # write stories with alternating schema info
+    for i in range(n_input_files * n_iterations):
+        f_idx = np.mod(i, n_input_files)
+        # write to the output file
+        rand_seed = write_stories(schema_info[f_idx], f_out, rand_seed, n_repeats)
+
     f_out.close()
 
 if __name__ == "__main__":
-    main()
+    main(rand_seed)
