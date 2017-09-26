@@ -3,10 +3,12 @@ from copy import deepcopy
 import os
 import argparse
 import numpy as np
+import re
 import sys
 
 # constants
 MARK_END_STATE = True
+ATTACH_QUESTIONS = False
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
@@ -35,9 +37,10 @@ class Transition:
 
 class State:
     """Represents a state with text and a list of possible transition sets"""
-    def __init__(self, text, trans_list):
+    def __init__(self, text, trans_list, roles_list):
         self.text = text
         self.trans_list = trans_list
+        self.roles_list = roles_list
 
     def sample_next(self, grounding, attributes):
         i = 0
@@ -46,6 +49,10 @@ class State:
         probs = self.trans_list[i].probs
         trans_states = self.trans_list[i].trans_states
         return np.random.choice(trans_states, p=probs)
+
+    def get_roles(self):
+        # this function is a helper for getting possible questions for this state
+        return self.roles_list
         
 
 def read_schema_file(input_fname):
@@ -101,10 +108,18 @@ def read_schema_file(input_fname):
         state_name = f.readline().strip()
         text = f.readline().strip()
 
+        # gather all roles that can be queried, for QA
+        roles_list = []
+        roles_list_with_field = re.findall(r'\[(.*?)\]', text)
+        for role in roles_list_with_field:
+            roles_list.append(os.path.splitext(role)[0])
+        roles_list = set(roles_list)
+
         if state_name == "END":
-            states[state_name] = State(text, [])
+            states[state_name] = State(text, [], roles_list)
             break
 
+        # gather the next states with edge weights (if not end)
         trans_list = []
         trans_line = f.readline().strip()
         while trans_line:
@@ -120,7 +135,10 @@ def read_schema_file(input_fname):
             probs = np.array(probs).astype(np.float)
             trans_list.append(Transition(trans_cond, probs, trans_states))
             trans_line = f.readline().strip()
-        states[state_name] = State(text, trans_list)
+
+        # grab all info to represent the state
+        states[state_name] = State(text, trans_list, roles_list)
+
     f.close()
     return (attributes, entities, roles, states)
 
@@ -178,16 +196,27 @@ def write_one_story(schema_info, f):
         else:
             filled = filled[0].upper() + filled[1:]
 
-        # add symbolic markers
+        if ATTACH_QUESTIONS:
+            roles_list = states[curr_state].get_roles()
+            for role in roles_list:
+                question_text = ' Q' + role
+                filled += question_text
+
+        # add end state markers
         if MARK_END_STATE:
             filled += (' ' + END_STATE_MARKER)
-        # write to text
-        f.write(filled+" ")
+
+        # write text to file
+        f.write(filled + " ")
+
         # stopping criterion
         if curr_state == 'END':
-            f.write(END_STORY_MARKER + " \n\n")
+            if MARK_END_STATE:
+                f.write(END_STORY_MARKER)
+            f.write(" \n\n")
             break
-        # Sample next state
+
+        # update: sample next state
         curr_state = states[curr_state].sample_next(grounding, attributes)
 
 
