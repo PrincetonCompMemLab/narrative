@@ -161,18 +161,18 @@ def open_output_file(input_fname, n_iterations, n_repeats):
     return f_output
 
 
-def write_stories(schema_info, f, rand_seed, n_repeats):
+def write_stories(schema_info, f_stories, f_QA, rand_seed, n_repeats):
     # Generate stories
     for i in range(n_repeats):
         np.random.seed(rand_seed)
-        write_one_story(schema_info, f)
+        write_one_story(schema_info, f_stories, f_QA)
         # increment the seed, so that every story uses a different seed value
         # but different runs of run_engine.py use the same sequence of seed
         rand_seed += 1
     return rand_seed
 
 
-def write_one_story(schema_info, f):
+def write_one_story(schema_info, f_stories, f_QA):
     (attributes, entities, roles, states) = schema_info
     grounding = dict()
     avail_entities = deepcopy(entities)
@@ -180,45 +180,60 @@ def write_one_story(schema_info, f):
         grounding[role] = np.random.choice(avail_entities[roles[role]])
         avail_entities[roles[role]].remove(grounding[role])
 
-    # Loop through states
+    # Loop through statess
     curr_state = 'BEGIN'
     while True:
         # Output state text with fillers
         # get a un-filled state
-        text_split = states[curr_state].text.replace(']', '[').split('[')
-        for i in range(1, len(text_split), 2):
-            slot = text_split[i].split('.')
-            text_split[i] = attributes[grounding[slot[0]]][slot[1]]
-        # get a filled state
-        filled = ''.join(text_split)
-        if filled[0] == "\"":
-            filled = filled[0] + filled[1].upper() + filled[2:]
-        else:
-            filled = filled[0].upper() + filled[1:]
+        filled = get_filled_state(curr_state, grounding, states, attributes)
 
         if ATTACH_QUESTIONS:
-            roles_list = states[curr_state].get_roles()
-            for role in roles_list:
-                question_text = ' Q' + role
-                filled += question_text
-
-        # add end state markers
+            filled = attach_question(filled, states, curr_state)
         if MARK_END_STATE:
             filled += (' ' + END_STATE_MARKER)
 
         # write text to file
-        f.write(filled + " ")
+        f_stories.write(filled + " ")
 
         # stopping criterion
         if curr_state == 'END':
             if MARK_END_STATE:
-                f.write(END_STORY_MARKER)
-            f.write(" \n\n")
+                f_stories.write(END_STORY_MARKER)
+            f_stories.write(" \n\n")
             break
 
         # update: sample next state
         curr_state = states[curr_state].sample_next(grounding, attributes)
 
+
+def get_filled_state(curr_state, curr_grounding, all_states, all_attributes):
+    '''
+    generate a text sentence representation of a state with filled groundings
+    :param curr_state:
+    :param curr_grounding:
+    :param all_states:
+    :param all_attributes:
+    :return:
+    '''
+    text_split = all_states[curr_state].text.replace(']', '[').split('[')
+    for i in range(1, len(text_split), 2):
+        slot = text_split[i].split('.')
+        text_split[i] = all_attributes[curr_grounding[slot[0]]][slot[1]]
+    # get a filled state
+    filled = ''.join(text_split)
+    if filled[0] == "\"":
+        filled = filled[0] + filled[1].upper() + filled[2:]
+    else:
+        filled = filled[0].upper() + filled[1:]
+    return filled
+
+
+def attach_question(filled_sentence_text, states, curr_state):
+    roles_list = states[curr_state].get_roles()
+    for role in roles_list:
+        question_text = ' Q' + role
+        filled_sentence_text += question_text
+    return filled_sentence_text
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
