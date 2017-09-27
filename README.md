@@ -39,7 +39,11 @@ python run_engine.py poetry fight 2 2
 ```
 After running the cmd, you will see a file called `schemaFiles_niter_nrepeats.txt` under the `story/` directory
 
-**Functionalties to be added**: 
+**Functionalties**: 
+- [x] generate stories according to some input schema
+- [x] alternate between k schema
+- [x] insert state/story boundaries
+- [x] generate 2 alternative force choice questions for the next state 
 - [ ] plot the graph of the schema (markov model)
 - [ ] add "higher order schema"
 <br><br><br>
@@ -65,7 +69,6 @@ This procedure generates a directory `input_file/` under the `story_processed/` 
 - [x] transform characters to lower case
 - [x] insert state/story boundaries
 - [x] convert character representations to word representations
-- [x] alternate between k schema
 - [x] shuffle/reverse the order of words within each state 
 - [x] shuffle/reverse the order of sentences within each story
     - [ ] shuffle/reverse every k-words segment (Amy)
