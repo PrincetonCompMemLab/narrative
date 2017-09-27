@@ -13,7 +13,6 @@ _, input_fname = sys.argv
 
 # constant
 input_path = '../story/'
-output_path ='../story_processed/'
 train_test_ratio = .9
 
 def get_word_level_rep(text, output_path, train_test_ratio):
@@ -31,15 +30,15 @@ def get_word_level_rep(text, output_path, train_test_ratio):
 
 
 # read input text file
-print('Input text = <%s>' % os.path.abspath(os.path.join(input_path,input_fname)))
-input_file = open(input_path + input_fname + '.txt', 'r')
+input_path = os.path.join(input_path,input_fname)
+print('Input text from <%s>' % os.path.abspath(input_path))
+input_file_path = os.path.join(input_path, input_fname + '.txt')
+input_file = open(input_file_path, 'r')
 text = input_file.read()
 
 # get output dir name and makr output dirs
-output_path = os.path.join(output_path, input_fname)
-make_output_dirs(output_path)
-# save raw input file
-write2file(text, 'raw.txt', output_path)
+output_path = input_path
+make_output_cond_dirs(output_path)
 
 
 # remove pun markers...
