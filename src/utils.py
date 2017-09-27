@@ -87,11 +87,10 @@ def rchop(thestring, ending):
     return thestring
 
 
-def make_output_dirs(output_path):
-    if not os.path.exists(output_path):
-        os.makedirs(os.path.join(output_path))
-        os.makedirs(os.path.join(output_path, 'shuffle_none'))
-        os.makedirs(os.path.join(output_path, 'shuffle_words'))
-        os.makedirs(os.path.join(output_path, 'shuffle_states'))
+def make_output_cond_dirs(output_path):
+    condition_list = ['shuffle_none', 'shuffle_words', 'shuffle_states']
+    for i in range(len(condition_list)):
+        if not os.path.exists(os.path.join(output_path, condition_list[i])):
+            os.makedirs(os.path.join(output_path, condition_list[i]))
 
 

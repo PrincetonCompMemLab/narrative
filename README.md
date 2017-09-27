@@ -1,14 +1,33 @@
+## Notification: 
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) 
+Since the coffee shop world generator is under active development, 
+the usage might change every once in awhile... I will try my best to keep the documentation up to date! 
+
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) 
+Note that 
+[projectSEM/narrative](https://github.com/ProjectSEM/narrative) 
+is a forked repo. I work with the original repo at 
+[PrincetonCompMemLab/narrative](https://github.com/PrincetonCompMemLab/narrative) 
+directly, and I will update push to 
+[projectSEM/narrative](https://github.com/ProjectSEM/narrative) 
+whenever I made major update. 
+
 ## Resources 
 
-Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
+Some related papers and data sets can be found 
+<a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
 <br><br>
+
 
 ## Slides from Sep 2017 Princeton meeting:  
 
 History, current status, and future of coffee shop world (7:30-8:15pm)
-- Alex - The coffee shop story generator - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
-- Andre - Behavioral experiments - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
-- Qihong - Neural networks for schema learning - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
+- Alex - The coffee shop story generator - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
+- Andre - Behavioral experiments - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
+- Qihong - Neural networks for schema learning - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
 <br><br>
 
 ## The coffee shop world "engine" 
@@ -26,15 +45,19 @@ Currently, we have two schema: "poetry reading" and "fight". Here's an exmaple o
 
 In the terminal, cd to `\src`, and run the cmd with the following format 
 ```
-python run_engine.py [schema_file_1] [schema_file_2] ... [schema_file_k] [n_iter] [alternating]"
+python run_engine.py [schema_file_1] [schema_file_2] ... [schema_file_k] [niter] [nrepeats]"
 ```
-where, `schema_file_i` is a txt schema file, `n_iter` is the number of stories and `alternating` is a boolean value that indicates if the generated stories will alternate across the k schemas. For example, the following command generate 4 stories alternating between poetry and fight.
+where, `schema_file_i` is a txt schema file, `n_iter` is the number of stories and `alternating` is a boolean value that indicates if the generated stories will alternate across the k schemas. For example, the following command generate 8 stories (alternating between 2 poetry stories and 2 fight stories for 2 iterations).
 ```
-python run_engine.py poetry fight 2 True
+python run_engine.py poetry fight 2 2
 ```
-After running the cmd, you will see a file called `schema_file_n_iter.txt` under the `story/` directory
+After running the cmd, you will see a file called `schemaFiles_niter_nrepeats.txt` under the `story/schemaFiles_niter_nrepeats/` directory
 
-**Functionalties to be added**: 
+**Functionalties**: 
+- [x] generate stories according to some input schema
+- [x] alternate between k schema
+- [x] insert state/story boundaries
+- [x] generate 2 alternative force choice questions for the next state 
 - [ ] plot the graph of the schema (markov model)
 - [ ] add "higher order schema"
 <br><br><br>
@@ -43,20 +66,27 @@ After running the cmd, you will see a file called `schema_file_n_iter.txt` under
 
 **how to use**
 
-Having generated a text file contains a bunch of stories (from step 1) under the `story/` directory, in the terminal, cd to `\src`, and run the cmd with the following format 
+Having generated a text file contains a bunch of stories (from step 1) under the `story/schemaFiles_niter_nrepeats/` directory, in the terminal, cd to `\src`, and run the cmd with the following format 
 ```
-python proc_txt.py input_file
+python proc_txt.py schemaFiles_niter_nrepeats
 ```
-where `input_file` is the stories file you got from step 1. For example, the following cmd is valid:
+where `schemaFiles_niter_nrepeats` is the name of the directory you just generated from step 1. For example, the following cmd is valid:
 ```
-python proc_txt.py poetry_2
+python proc_txt.py poetry_fight_2_2
 ```
-This procedure generates a directory `input_file/` under the `story_processed/` directory
+This procedure generates 3 directories `shuffle_none/`, `shuffle_words/`, `shuffle_states/`, for training data without no shuffling, shuffled words and shuffled states, respectively. Inside each directory, you will see a bunch of files: 
+- chars_we.txt - story with end markers 
+- chars_woe.txt - story without end markers 
+- words_*.npz - python friendly data file, has subfields `train` and `valid` for training and validation 
+- word_dict.pickle - the dictionary of the token words 
+- metadata.txt - text file version of word_dict.pickle (might add more things in the future)
+
+
 
 
 **Functionalities**: 
 - [x] separate training vs. test set and save to .npz file 
-- [x] remove punctuations marks
+- [x] remove punctuation marks
 - [x] transform characters to lower case
 - [x] insert state/story boundaries
 - [x] convert character representations to word representations
