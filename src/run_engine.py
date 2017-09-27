@@ -1,7 +1,7 @@
-from csv import reader
-from copy import deepcopy
-import os
-import numpy as np
+# from csv import reader
+# from copy import deepcopy
+# import os
+# import numpy as np
 import argparse
 import sys
 from engine import *
@@ -35,7 +35,9 @@ if n_input_files == 1:
 def main(rand_seed):
 
     # get a handle on the output file
-    f_out = open_output_file(names_concat, n_iterations, n_repeats)
+    output_path = mkdir(names_concat, n_iterations, n_repeats)
+    f_stories = open_output_file(output_path, names_concat, n_iterations, n_repeats)
+    f_QA = open_output_file(output_path, names_concat + '_QA', n_iterations, n_repeats)
     # read all schema files
     schema_info = []
     for i in range(n_input_files):
@@ -45,9 +47,10 @@ def main(rand_seed):
     for i in range(n_input_files * n_iterations):
         f_idx = np.mod(i, n_input_files)
         # write to the output file
-        rand_seed = write_stories(schema_info[f_idx], f_out, rand_seed, n_repeats)
+        rand_seed = write_stories(schema_info[f_idx], f_stories, f_QA, rand_seed, n_repeats)
 
-    f_out.close()
+    f_stories.close()
+    f_QA.close()
 
 if __name__ == "__main__":
     main(rand_seed)

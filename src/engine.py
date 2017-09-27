@@ -12,7 +12,7 @@ ATTACH_QUESTIONS = False
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
-OUTPUT_PATH = '../story'
+OUTPUT_ROOT = '../story'
 INPUT_PATH  = '../schema'
 
 # helper functions 
@@ -35,6 +35,12 @@ class Transition:
         cond_split[1] = ''
         return eval(''.join(cond_split))
 
+    def get_trans_states(self):
+        return self.trans_states
+
+    def get_probs(self):
+        return self.probs
+
 class State:
     """Represents a state with text and a list of possible transition sets"""
     def __init__(self, text, trans_list, roles_list):
@@ -42,18 +48,47 @@ class State:
         self.trans_list = trans_list
         self.roles_list = roles_list
 
-    def sample_next(self, grounding, attributes):
+    def __get_trans_list_idx(self, grounding, attributes):
+        '''
+        figure out the correct index of the transitional distributions to use
+        :param grounding:
+        :param attributes:
+        :return:
+        '''
         i = 0
         while not self.trans_list[i].matches_cond(grounding, attributes):
             i += 1
+        return i
+
+    def sample_next(self, grounding, attributes):
+        i = self.__get_trans_list_idx(grounding, attributes)
         probs = self.trans_list[i].probs
         trans_states = self.trans_list[i].trans_states
-        return np.random.choice(trans_states, p=probs)
+        next_state = np.random.choice(trans_states, p=probs)
+        return next_state
+
+    def get_distribution(self, grounding, attributes):
+        '''
+        get the distribution of the next states
+        :param grounding:
+        :param attributes:
+        :return:
+        '''
+        i = self.__get_trans_list_idx(grounding, attributes)
+        probs = self.trans_list[i].probs
+        trans_states = self.trans_list[i].trans_states
+        distribution = dict(zip(trans_states, probs))
+        return distribution
+
+    def get_num_next_states(self,grounding, attributes):
+        i = self.__get_trans_list_idx(grounding, attributes)
+        return len(self.trans_list[i].trans_states)
 
     def get_roles(self):
         # this function is a helper for getting possible questions for this state
         return self.roles_list
-        
+
+
 
 def read_schema_file(input_fname):
     print('Schema = %s' %
@@ -143,49 +178,64 @@ def read_schema_file(input_fname):
     return (attributes, entities, roles, states)
 
 
-def mkdir(OUTPUT_PATH):
+def mkdir(names_concat, n_iterations, n_repeats):
+    output_subpath = ('%s_%s_%s' % (names_concat, str(n_iterations), str(n_repeats)))
     # make output directory if not exists
-    if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(OUTPUT_PATH)
-        print('mkdir: %s', OUTPUT_PATH)
+    if not os.path.exists(OUTPUT_ROOT):
+        os.makedirs(OUTPUT_ROOT)
+        print('mkdir: %s', OUTPUT_ROOT)
 
-def open_output_file(input_fname, n_iterations, n_repeats):
+    final_output_path = os.path.join(OUTPUT_ROOT, output_subpath)
+    if not os.path.exists(final_output_path):
+        os.makedirs(final_output_path)
+        print('- mkdir: %s', final_output_path)
+    return final_output_path
+
+
+def open_output_file(output_path, input_fname, n_iterations, n_repeats):
     n_iterations = str(n_iterations)
     n_repeats = str(n_repeats)
-    mkdir(OUTPUT_PATH)
+
     # get a handle on the output file
-    output_fname = os.path.join(OUTPUT_PATH, input_fname
+    output_fname = os.path.join(output_path, input_fname
                                 + '_' + n_iterations + '_' + n_repeats + FILE_FORMAT)
     f_output = open(output_fname, 'w')
     print('Output = %s' % (os.path.abspath(output_fname)))
     return f_output
 
 
-def write_stories(schema_info, f_stories, f_QA, rand_seed, n_repeats):
+def write_stories(schema_info, f_stories, f_Q_next, rand_seed, n_repeats):
     # Generate stories
     for i in range(n_repeats):
         np.random.seed(rand_seed)
-        write_one_story(schema_info, f_stories, f_QA)
+        write_one_story(schema_info, f_stories, f_Q_next)
         # increment the seed, so that every story uses a different seed value
         # but different runs of run_engine.py use the same sequence of seed
         rand_seed += 1
     return rand_seed
 
 
-def write_one_story(schema_info, f_stories, f_QA):
+def write_one_story(schema_info, f_stories, f_Q_next):
+
     (attributes, entities, roles, states) = schema_info
-    grounding = dict()
-    avail_entities = deepcopy(entities)
-    for role in sorted(roles.keys()):
-        grounding[role] = np.random.choice(avail_entities[roles[role]])
-        avail_entities[roles[role]].remove(grounding[role])
+    grounding = get_grounding(entities, roles)
 
     # Loop through statess
     curr_state = 'BEGIN'
     while True:
+
         # Output state text with fillers
         # get a un-filled state
         filled = get_filled_state(curr_state, grounding, states, attributes)
+
+        if curr_state != 'BEGIN' and curr_state != 'END' and had_alt_future:
+            distribution = states[prev_state].get_distribution(grounding, attributes)
+            curr_state_p = distribution.get(curr_state)
+            f_Q_next.write(str(curr_state_p) + '\t' + curr_state + '\t' + filled + '\n')
+        had_alt_future = False
+
+        # collect question text
+        f_Q_next.write('\n' + filled + '\n')
 
         if ATTACH_QUESTIONS:
             filled = attach_question(filled, states, curr_state)
@@ -199,12 +249,54 @@ def write_one_story(schema_info, f_stories, f_QA):
         if curr_state == 'END':
             if MARK_END_STATE:
                 f_stories.write(END_STORY_MARKER)
-            f_stories.write(" \n\n")
+            f_stories.write(' \n\n')
+            f_Q_next.write(' \n\n')
             break
 
         # update: sample next state
+        prev_state = curr_state
         curr_state = states[curr_state].sample_next(grounding, attributes)
 
+        # sample a possible alternative future state
+        # TODO can also sampel an impossible state
+        alt_future = get_alternative_future(prev_state, curr_state, states, grounding, attributes)
+        # write to file if exisits
+        if alt_future != 0:
+            had_alt_future = True
+            alt_future_filled = get_filled_state(alt_future, grounding, states, attributes)
+            # get the probability of the alternative future
+            distribution = states[prev_state].get_distribution(grounding, attributes)
+            alt_future_p = distribution.get(alt_future)
+            # write to q_next file
+            f_Q_next.write(str(alt_future_p) + '\t' +  alt_future + '\t' + alt_future_filled + '\n')
+
+
+def get_alternative_future(prev_state, curr_state, states, grounding, attributes):
+    '''
+    given the previous state and the current state, find an alternative current state
+    :param prev_state:
+    :param curr_state:
+    :param states:
+    :param grounding:
+    :param attributes:
+    :return: an alternative current state (0 if no alternative)
+    '''
+    n = states[prev_state].get_num_next_states(grounding, attributes)
+    if n == 1:
+        return 0
+    altnative_future_state = curr_state
+    while altnative_future_state == curr_state:
+        altnative_future_state = states[prev_state].sample_next(grounding, attributes)
+    return altnative_future_state
+
+
+def get_grounding(entities, roles):
+    grounding = dict()
+    avail_entities = deepcopy(entities)
+    for role in sorted(roles.keys()):
+        grounding[role] = np.random.choice(avail_entities[roles[role]])
+        avail_entities[roles[role]].remove(grounding[role])
+    return grounding
 
 def get_filled_state(curr_state, curr_grounding, all_states, all_attributes):
     '''
