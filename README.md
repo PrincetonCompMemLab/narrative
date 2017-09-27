@@ -1,19 +1,33 @@
 ## Notification: 
-![#f03c15](https://placehold.it/15/f03c15/000000?text=+) Since the coffee shop world generator is under active development, 
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) 
+Since the coffee shop world generator is under active development, 
 the usage might change every once in awhile... I will try my best to keep the documentation up to date! 
+
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) 
+Note that 
+[projectSEM/narrative](https://github.com/ProjectSEM/narrative) 
+is a forked repo. I work with the original repo at 
+[PrincetonCompMemLab/narrative](https://github.com/PrincetonCompMemLab/narrative) 
+directly, and I will update push to 
+[projectSEM/narrative](https://github.com/ProjectSEM/narrative) 
+whenever I made major update. 
 
 ## Resources 
 
-Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
+Some related papers and data sets can be found 
+<a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
 <br><br>
 
 
 ## Slides from Sep 2017 Princeton meeting:  
 
 History, current status, and future of coffee shop world (7:30-8:15pm)
-- Alex - The coffee shop story generator - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
-- Andre - Behavioral experiments - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
-- Qihong - Neural networks for schema learning - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
+- Alex - The coffee shop story generator - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
+- Andre - Behavioral experiments - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
+- Qihong - Neural networks for schema learning - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
 <br><br>
 
 ## The coffee shop world "engine" 
