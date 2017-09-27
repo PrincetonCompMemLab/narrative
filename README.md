@@ -1,19 +1,33 @@
 ## Notification: 
-![#f03c15](https://placehold.it/15/f03c15/000000?text=+) Since the coffee shop world generator is under active development, 
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) 
+Since the coffee shop world generator is under active development, 
 the usage might change every once in awhile... I will try my best to keep the documentation up to date! 
+
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) 
+Note that 
+[projectSEM/narrative](https://github.com/ProjectSEM/narrative) 
+is a forked repo. I work with the original repo at 
+[PrincetonCompMemLab/narrative](https://github.com/PrincetonCompMemLab/narrative) 
+directly, and I will update push to 
+[projectSEM/narrative](https://github.com/ProjectSEM/narrative) 
+whenever I made major update. 
 
 ## Resources 
 
-Some related papers and data sets can be found <a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
+Some related papers and data sets can be found 
+<a href = "https://github.com/PrincetonCompMemLab/narrative/wiki">here</a>
 <br><br>
 
 
 ## Slides from Sep 2017 Princeton meeting:  
 
 History, current status, and future of coffee shop world (7:30-8:15pm)
-- Alex - The coffee shop story generator - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
-- Andre - Behavioral experiments - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
-- Qihong - Neural networks for schema learning - [slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
+- Alex - The coffee shop story generator - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/storygeneration_MURI.pdf) 
+- Andre - Behavioral experiments - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/andre_MURI_d1.pdf) 
+- Qihong - Neural networks for schema learning - 
+[slides](https://github.com/ProjectSEM/Organization/blob/master/slides/sep_2017/0917-MURI_Lu.pdf) 
 <br><br>
 
 ## The coffee shop world "engine" 
@@ -37,26 +51,38 @@ where, `schema_file_i` is a txt schema file, `n_iter` is the number of stories a
 ```
 python run_engine.py poetry fight 2 2
 ```
-After running the cmd, you will see a file called `schemaFiles_niter_nrepeats.txt` under the `story/` directory
+After running the cmd, you will see a file called `schemaFiles_niter_nrepeats.txt` under the `story/schemaFiles_niter_nrepeats/` directory
 
-**Functionalties to be added**: 
+**Functionalties**: 
+- [x] generate stories according to some input schema
+- [x] alternate between k schema
+- [x] insert state/story boundaries
+- [x] generate 2 alternative force choice questions for the next state 
 - [ ] plot the graph of the schema (markov model)
 - [ ] add "higher order schema"
+- [ ] generate sentences, interleaved across k stories? 
 <br><br><br>
 
 **2. post-processing** `proc_txt.py`
 
 **how to use**
 
-Having generated a text file contains a bunch of stories (from step 1) under the `story/` directory, in the terminal, cd to `\src`, and run the cmd with the following format 
+Having generated a text file contains a bunch of stories (from step 1) under the `story/schemaFiles_niter_nrepeats/` directory, in the terminal, cd to `\src`, and run the cmd with the following format 
 ```
-python proc_txt.py input_file
+python proc_txt.py schemaFiles_niter_nrepeats
 ```
-where `input_file` is the stories file you got from step 1. For example, the following cmd is valid:
+where `schemaFiles_niter_nrepeats` is the name of the directory you just generated from step 1. For example, the following cmd is valid:
 ```
 python proc_txt.py poetry_fight_2_2
 ```
-This procedure generates a directory `input_file/` under the `story_processed/` directory
+This procedure generates 3 directories `shuffle_none/`, `shuffle_words/`, `shuffle_states/`, for training data without no shuffling, shuffled words and shuffled states, respectively. Inside each directory, you will see a bunch of files: 
+- chars_we.txt - story with end markers 
+- chars_woe.txt - story without end markers 
+- words_*.npz - python friendly data file, has subfields `train` and `valid` for training and validation 
+- word_dict.pickle - the dictionary of the token words 
+- metadata.txt - text file version of word_dict.pickle (might add more things in the future)
+
+
 
 
 **Functionalities**: 
@@ -65,7 +91,6 @@ This procedure generates a directory `input_file/` under the `story_processed/` 
 - [x] transform characters to lower case
 - [x] insert state/story boundaries
 - [x] convert character representations to word representations
-- [x] alternate between k schema
 - [x] shuffle/reverse the order of words within each state 
 - [x] shuffle/reverse the order of sentences within each story
     - [ ] shuffle/reverse every k-words segment (Amy)
