@@ -60,6 +60,7 @@ After running the cmd, you will see a file called `schemaFiles_niter_nrepeats.tx
 - [x] generate 2 alternative force choice questions for the next state 
 - [ ] plot the graph of the schema (markov model)
 - [ ] add "higher order schema"
+- [ ] generate sentences, interleaved across k stories? 
 <br><br><br>
 
 **2. post-processing** `proc_txt.py`
