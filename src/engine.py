@@ -38,6 +38,9 @@ class Transition:
     def get_trans_states(self):
         return self.trans_states
 
+    def get_trans_cond(self):
+        return self.trans_cond
+
     def get_probs(self):
         return self.probs
 
@@ -78,7 +81,8 @@ class State:
         probs = self.trans_list[i].probs
         trans_states = self.trans_list[i].trans_states
         distribution = dict(zip(trans_states, probs))
-        return distribution
+        trans_cond = self.trans_list[i].get_trans_cond()
+        return distribution, trans_cond
 
     def get_num_next_states(self,grounding, attributes):
         i = self.__get_trans_list_idx(grounding, attributes)
@@ -229,9 +233,9 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         filled = get_filled_state(curr_state, grounding, states, attributes)
 
         if curr_state != 'BEGIN' and curr_state != 'END' and had_alt_future:
-            distribution = states[prev_state].get_distribution(grounding, attributes)
+            distribution, _ = states[prev_state].get_distribution(grounding, attributes)
             curr_state_p = distribution.get(curr_state)
-            f_Q_next.write(str(curr_state_p) + '\t' + curr_state + '\t' + filled + '\n')
+            f_Q_next.write(str(curr_state_p) + ', ' + curr_state + ', ' + filled + '\n')
         had_alt_future = False
 
         # collect question text
@@ -265,10 +269,11 @@ def write_one_story(schema_info, f_stories, f_Q_next):
             had_alt_future = True
             alt_future_filled = get_filled_state(alt_future, grounding, states, attributes)
             # get the probability of the alternative future
-            distribution = states[prev_state].get_distribution(grounding, attributes)
+            distribution, condition = states[prev_state].get_distribution(grounding, attributes)
             alt_future_p = distribution.get(alt_future)
             # write to q_next file
-            f_Q_next.write(str(alt_future_p) + '\t' +  alt_future + '\t' + alt_future_filled + '\n')
+            f_Q_next.write(condition + '\n')
+            f_Q_next.write(str(alt_future_p) + ', ' +  alt_future + ', ' + alt_future_filled + '\n')
 
 
 def get_alternative_future(prev_state, curr_state, states, grounding, attributes):
