@@ -40,23 +40,15 @@ text = input_file.read()
 output_path = input_path
 make_output_cond_dirs(output_path)
 
-
 # remove pun markers...
 text = str2cleanstr(text)
 # create shuffling
 text_shufw = shuffle_words_in_state(text)
 text_shufs = shuffle_states_in_story(text)
-# print(text)
-# print('\n\n\n')
-# print(text_shufw)
-# print('\n\n\n')
-# print(text_shufs)
-# sys.exit('STOP')
 
 # conver to lower case
 [text, text_shufw, text_shufs] = to_lower_case([text, text_shufw, text_shufs])
 
-print('')
 # save word level representation
 get_word_level_rep(text, os.path.join(output_path, 'shuffle_none'), train_test_ratio)
 get_word_level_rep(text_shufw, os.path.join(output_path, 'shuffle_words'), train_test_ratio)
