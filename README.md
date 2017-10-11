@@ -94,5 +94,8 @@ This procedure generates 3 directories `shuffle_none/`, `shuffle_words/`, `shuff
 - [x] shuffle/reverse the order of words within each state 
 - [x] shuffle/reverse the order of sentences within each story
     - [ ] shuffle/reverse every k-words segment (Amy)
+- [ ] convert to a cleaner key-value binding test 
+    - [ ] replace non-filler words by "blah"
+    - [ ] replace the k-th non-filler consecutive-words by "blah_k"
 
 Let me know if you have more suggestions - qlu@princeton.edu
