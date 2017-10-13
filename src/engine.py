@@ -8,11 +8,9 @@ import sys
 import json
 
 
-
 # constants
 MARK_END_STATE = True
 ATTACH_QUESTIONS = False
-GET_FILLER_INCONSISTENT_Q = True
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
@@ -245,11 +243,11 @@ def write_one_story(schema_info, f_stories, f_Q_next):
 
         # don't write question in the 1st iteration
         # there is no next state if end
-        # exisits alternative future  -> necessary -> exisits 2AFC
+        # exists alternative future  -> necessary -> exists 2AFC
         if curr_state != 'BEGIN' and had_alt_future:
             distribution, _ = states[prev_state].get_distribution(grounding, attributes)
             curr_state_p = distribution.get(curr_state)
-            f_Q_next.write(str(curr_state_p) + ', ' + curr_state + ', ' + filled + '\n')
+            write_alt_next_state_q_file(f_Q_next, 'Truth', curr_state_p, curr_state, filled)
         had_alt_future = False
 
         # collect question text
@@ -276,25 +274,20 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         curr_state = states[curr_state].sample_next(grounding, attributes)
 
         # get question
-        if GET_FILLER_INCONSISTENT_Q:
-            alt_next_grounding, alt_future, condition, people_introduced = get_filler_inconsistent_next_state(
-                fillers, people_introduced, people_all, curr_state, grounding, states, attributes
-            )
-        else:
-            alt_future = get_alternative_future(prev_state, curr_state, states, grounding, attributes)
-
-        # write to file if question exisits
+        # generate filler inconsistent questions
+        alt_future, people_introduced = get_filler_inconsistent_next_state(
+            fillers, people_introduced, people_all, curr_state, grounding, states, attributes, f_Q_next
+        )
+        if alt_future != 0: had_alt_future = True
+        # generate alternative state
+        alt_future = get_alternative_future(prev_state, curr_state, states, grounding, attributes)
         if alt_future != 0:
             had_alt_future = True
-            if GET_FILLER_INCONSISTENT_Q:
-                alt_future_filled, _ = get_filled_state(curr_state, alt_next_grounding, states, attributes)
-                write_alt_next_state_q_file(f_Q_next, condition, 0, alt_future, alt_future_filled)
-            else:
-                alt_future_filled, _ = get_filled_state(alt_future, grounding, states, attributes)
-                # get the probability of the alternative future
-                distribution, condition = states[prev_state].get_distribution(grounding, attributes)
-                alt_future_p = distribution.get(alt_future)
-                write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, alt_future_filled)
+            alt_future_filled, _ = get_filled_state(alt_future, grounding, states, attributes)
+            # get the probability of the alternative future
+            distribution, condition = states[prev_state].get_distribution(grounding, attributes)
+            alt_future_p = distribution.get(alt_future)
+            write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, alt_future_filled)
 
 
 
@@ -306,45 +299,48 @@ def write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, a
     :param alt_future_p: the probability of the alternative future state
     :param alt_future: the state name of the alternative future state
     :param alt_future_filled: the instantitated alternative future state
-    :return:
     '''
     f_Q_next.write(condition + '\n')
     f_Q_next.write(str(alt_future_p) + ', ' + alt_future + ', ' + alt_future_filled + '\n')
 
 
 
-def get_filler_inconsistent_next_state(fillers, people_introduced, people_all, curr_state, grounding, states, attributes):
+def get_filler_inconsistent_next_state(fillers, people_introduced, people_all, curr_state, grounding, states, attributes, f_Q_next):
     '''
-    get an altnerative next state, with inconsistent filler (so it is "impossible" in this sense)
-    update people_introduced
-    :param fillers:
-    :param people_introduced:
-    :param people_all:
-    :param curr_state:
-    :param grounding:
-    :param states:
-    :param attributes:
+    - get an altnerative next state, with inconsistent filler (so it is "impossible" in this sense)
+    - update people_introduced
+    :param fillers: a bunch of fillers
+    :param people_introduced: the set of introduced fillers with type "Person"
+    :param people_all: the set of all people (names)
+    :param curr_state: the name of the current state
+    :param grounding: the role-filler binding
+    :param states: all states
+    :param attributes: all filler attributes
     :return:
+    - an altered grounding
+    - the name of the alternative future state
+    - the name of the condition (probability dependency)
+    - the set of all people (names) updated
     '''
     # keep track of the introduced characters
     _, _, people_introduced = update_introduced_characters(fillers, people_introduced, people_all)
     # compute people who are gonna appear next
-    _, next_fillers = get_filled_state(curr_state, grounding, states, attributes)
+    next_state_temp, next_fillers = get_filled_state(curr_state, grounding, states, attributes)
+    # print('->:%s\n' % next_state_temp)
     next_characters, _, _ = update_introduced_characters(next_fillers, people_introduced, people_all)
-    # make sure they are already introduced
-    # otherwise it doesn't make sense to expect the subject to notice inconsistent swapping
+    # compute the just-introduced characters
     next_characters = people_introduced.intersection(next_characters)
-
     # get alternative grounding, if exists
-    alt_next_grounding, alt_future, condition = generate_alternative_grounding(
-        next_characters, grounding, curr_state, people_introduced
+    alt_future, condition = generate_alternative_grounding(
+        next_characters, grounding, curr_state, people_introduced,
+        states, attributes, f_Q_next
     )
-    return alt_next_grounding, alt_future, condition, people_introduced
+    return alt_future, people_introduced
 
 
 
 
-def generate_alternative_grounding(next_characters, grounding, curr_state, people_introduced):
+def generate_alternative_grounding(next_characters, grounding, curr_state, people_introduced, states, attributes, f_Q_next):
     '''
     generate an alternative grounding by swapping role-filler binding
     e.g. exchange emcee <---> poet
@@ -357,53 +353,80 @@ def generate_alternative_grounding(next_characters, grounding, curr_state, peopl
     - alt_future: the name of the alternative future state, typically the same as curr_state
     - condition: indicate what kind of inconsistency is introduced at the next state
     '''
-
-    # default values
-    alt_next_grounding = grounding
-    alt_future = 0
+    # set default return values
     condition = 0
-    #
-    next_num_introduced_characters = len(next_characters)
-    if next_num_introduced_characters > 0:
-        # if the next state has >=  2 characters
-        if next_num_introduced_characters > 1:
-            # get the k characters in the next state
-            next_k_characters = list(next_characters)
-            k = len(next_k_characters)
-            # get their roles
-            next_k_roles = []
-            for this_char in next_k_characters:
-                next_k_roles.append(get_role_of_filler(this_char, grounding))
-            # permute the next k characters
-            next_k_characters_shuffled = deepcopy(next_k_characters)
-            while True:
-                np.random.shuffle(next_k_characters_shuffled)
-                if next_k_characters_shuffled != next_k_characters: break
-            # generate a new grounding
-            alt_next_grounding = deepcopy(grounding)
-            for i in range(k):
-                alt_next_grounding[next_k_roles[i]] = next_k_characters_shuffled[i]
-            # handle specs
-            condition = 'Permute_fillers'
+    alt_future = 0
+    # calcuate the number of characters in the next state
+    num_characters_next_state = len(next_characters)
+    # try to alter k fillers, k = 1,..., num_characters_next_state
+    for k in range(num_characters_next_state):
+        condition, alt_next_grounding = alter_grounding(k+1, next_characters, grounding, people_introduced)
+        # skip this k if no change can be done
+        if alt_next_grounding == grounding:
+            continue
+        else:
+            # get a instantiated state
+            alt_future_filled, _ = get_filled_state(curr_state, alt_next_grounding, states, attributes)
+            # write to question file
             alt_future = curr_state
+            write_alt_next_state_q_file(f_Q_next, condition, 0, alt_future, alt_future_filled)
+    return alt_future, condition
 
-        elif next_num_introduced_characters == 1 and len(people_introduced) > 1:
-            # sample an another character
-            the_next_character_str = next(iter(next_characters))
-            alternative_characters = people_introduced.difference(next_characters)
-            alternative_character_str = np.random.choice(list(alternative_characters))
-            # find the role of the alternative character
-            alternative_character_role = get_role_of_filler(alternative_character_str, grounding)
-            the_next_character_role = get_role_of_filler(the_next_character_str, grounding)
-            # create a temp grounding that swaps the role
-            alt_next_grounding = deepcopy(grounding)
-            alt_next_grounding[the_next_character_role] = alternative_character_str
-            # handle specs
-            condition = 'Alternative_fillers'
-            alt_future = curr_state
 
-    return alt_next_grounding, alt_future, condition
-
+def alter_grounding(n_alt, all_characters, grounding, all_introduced_characters):
+    '''
+    given some information the fillers who are gonna show up next + the introduced fillers + n_fillers to be altered
+    generate an altered grounding and write to text, if exisits
+    :param n_alt: the number of fillers to be changed
+    :param all_characters: fillers who are gonna show up next
+    :param grounding: role-filler binding
+    :param all_introduced_characters: introduced fillers
+    :return: condition, alt_next_grounding
+    '''
+    # initialize alternative grounding by copying the true grounding
+    alt_next_grounding = deepcopy(grounding)
+    # check characters who were introduced but absent in the next state
+    avail_characters = all_introduced_characters.difference(all_characters)
+    # print('- avail_characters', avail_characters)
+    if n_alt == 1 and len(avail_characters) > 0:
+        # get the next character (only 1) and the role
+        the_next_character = next(iter(all_characters))
+        the_next_character_role = get_role_of_filler(the_next_character, grounding)
+        # get an alternative filler and its role
+        the_alt_character = np.random.choice(list(avail_characters), 1)[0]
+        the_alt_character_role = get_role_of_filler(the_alt_character, grounding)
+        # exchange their roles
+        alt_next_grounding[the_alt_character_role] = the_next_character
+        alt_next_grounding[the_next_character_role] = the_alt_character
+        # attach specs
+        condition = 'Alter_%d_fillers: %s->%s (%s->%s) ' \
+                    % (n_alt, the_next_character, the_alt_character, the_next_character_role, the_alt_character_role)
+    elif n_alt > 1:
+        # get all characters who are gonna show up next
+        the_next_k_characters = list(all_characters)
+        k = len(all_characters)
+        # sample from the alternative next k fillers until we get a different list of k fillers
+        the_alt_k_characters = np.random.choice(list(all_introduced_characters), k, replace=False)
+        while any(the_alt_k_characters == the_next_k_characters):
+            the_alt_k_characters = np.random.choice(list(all_introduced_characters), k, replace=False)
+        # alter all next k fillers by a different k fillers
+        condition = 'Permute_%d_fillers: ' % n_alt
+        for i in range(k):
+            # for the current filler, figure out its role, and its replacement
+            the_next_one_character = the_next_k_characters[i]
+            the_alt_one_character =  the_alt_k_characters[i]
+            the_next_one_character_role = get_role_of_filler(the_next_one_character, grounding)
+            the_alt_one_character_role = get_role_of_filler(the_alt_one_character, grounding)
+            # alter the grounding for the i-th filler
+            alt_next_grounding[get_role_of_filler(the_next_one_character, grounding)] = the_alt_one_character
+            # modify specs
+            condition += '%s->%s (%s->%s) ' % (
+                the_next_one_character, the_alt_one_character,
+                the_next_one_character_role, the_alt_one_character_role
+            )
+    else:
+        return 0, grounding
+    return condition, alt_next_grounding
 
 
 def get_role_of_filler(target_filler, grounding):
@@ -459,6 +482,7 @@ def get_grounding(entities, roles):
         avail_entities[roles[role]].remove(grounding[role])
     return grounding
 
+
 def get_filled_state(curr_state, curr_grounding, all_states, all_attributes):
     '''
     generate a text sentence representation of a state with filled groundings
@@ -468,7 +492,6 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes):
     :param all_attributes:
     :return:
     '''
-
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
     for i in range(1, len(text_split), 2):
         slot = text_split[i].split('.')
@@ -488,6 +511,7 @@ def attach_role_question_marker(filled_sentence_text, states, curr_state):
         question_text = ' Q' + role
         filled_sentence_text += question_text
     return filled_sentence_text
+
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
