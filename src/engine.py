@@ -11,6 +11,7 @@ import json
 # constants
 MARK_END_STATE = True
 ATTACH_QUESTIONS = False
+ATTACH_ROLE_MARKER = False
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
@@ -239,7 +240,8 @@ def write_one_story(schema_info, f_stories, f_Q_next):
     while True:
         # Output state text with fillers
         # get a un-filled state
-        filled, fillers = get_filled_state(curr_state, grounding, states, attributes)
+        filled, fillers = get_filled_state(curr_state, grounding, states, attributes, ATTACH_ROLE_MARKER)
+        filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes)
 
         # don't write question in the 1st iteration
         # there is no next state if end
@@ -247,11 +249,11 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         if curr_state != 'BEGIN' and had_alt_future:
             distribution, _ = states[prev_state].get_distribution(grounding, attributes)
             curr_state_p = distribution.get(curr_state)
-            write_alt_next_state_q_file(f_Q_next, 'Truth', curr_state_p, curr_state, filled)
+            write_alt_next_state_q_file(f_Q_next, 'Truth', curr_state_p, curr_state, filled_Q)
         had_alt_future = False
 
         # collect question text
-        f_Q_next.write('\n' + filled + '\n')
+        f_Q_next.write('\n' + filled_Q + '\n')
 
         if ATTACH_QUESTIONS:
             filled = attach_role_question_marker(filled, states, curr_state)
@@ -279,6 +281,7 @@ def write_one_story(schema_info, f_stories, f_Q_next):
             fillers, people_introduced, people_all, curr_state, grounding, states, attributes, f_Q_next
         )
         if alt_future != 0: had_alt_future = True
+
         # generate alternative state
         alt_future = get_alternative_future(prev_state, curr_state, states, grounding, attributes)
         if alt_future != 0:
@@ -483,7 +486,7 @@ def get_grounding(entities, roles):
     return grounding
 
 
-def get_filled_state(curr_state, curr_grounding, all_states, all_attributes):
+def get_filled_state(curr_state, curr_grounding, all_states, all_attributes, ATTACH_ROLE_MARKER = False):
     '''
     generate a text sentence representation of a state with filled groundings
     :param curr_state:
@@ -493,15 +496,19 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes):
     :return:
     '''
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
+
     for i in range(1, len(text_split), 2):
         slot = text_split[i].split('.')
         text_split[i] = all_attributes[curr_grounding[slot[0]]][slot[1]]
+        if ATTACH_ROLE_MARKER:
+            text_split[i] = slot[0] + ' ' + text_split[i]
     # get a filled state
     filled = ''.join(text_split)
     if filled[0] == "\"":
         filled = filled[0] + filled[1].upper() + filled[2:]
     else:
         filled = filled[0].upper() + filled[1:]
+
     return filled, text_split
 
 
