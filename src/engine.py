@@ -13,7 +13,7 @@ MARK_END_STATE = True
 ATTACH_QUESTIONS = False
 ATTACH_ROLE_MARKER = False
 ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
-GEN_SYMBOLIC_STATES = False
+GEN_SYMBOLIC_STATES = True
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
@@ -235,7 +235,7 @@ def write_one_story(schema_info, f_stories, f_Q_next):
     for role, type in roles.items():
         if type == 'Person': role_Person.append(role)
     # dump key-value binding to the file
-    f_Q_next.write(json.dumps(grounding))
+    f_Q_next.write(json.dumps(grounding) + '\n')
 
     # Loop through statess
     curr_state = 'BEGIN'
