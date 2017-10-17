@@ -11,7 +11,7 @@ import json
 # constants
 MARK_END_STATE = True
 ATTACH_QUESTIONS = False
-ATTACH_ROLE_MARKER = True
+ATTACH_ROLE_MARKER = False
 ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
 GEN_SYMBOLIC_STATES = False
 FILE_FORMAT = '.txt'
