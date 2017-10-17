@@ -11,7 +11,9 @@ import json
 # constants
 MARK_END_STATE = True
 ATTACH_QUESTIONS = False
-ATTACH_ROLE_MARKER = False
+ATTACH_ROLE_MARKER = True
+ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
+GEN_SYMBOLIC_STATES = False
 FILE_FORMAT = '.txt'
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
@@ -240,9 +242,12 @@ def write_one_story(schema_info, f_stories, f_Q_next):
     while True:
         # Output state text with fillers
         # get a un-filled state
-        filled, fillers = get_filled_state(curr_state, grounding, states, attributes, ATTACH_ROLE_MARKER)
-        filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes)
+        filled, fillers = get_filled_state(curr_state, grounding, states, attributes,
+                                           ATTACH_ROLE_MARKER, GEN_SYMBOLIC_STATES)
 
+        # get the filled state for the question file
+        # "filled_Q" and "filled" are sync-ed by having the same arguments (1st 4)
+        filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes)
         # don't write question in the 1st iteration
         # there is no next state if end
         # exists alternative future  -> necessary -> exists 2AFC
@@ -251,7 +256,6 @@ def write_one_story(schema_info, f_stories, f_Q_next):
             curr_state_p = distribution.get(curr_state)
             write_alt_next_state_q_file(f_Q_next, 'Truth', curr_state_p, curr_state, filled_Q)
         had_alt_future = False
-
         # collect question text
         f_Q_next.write('\n' + filled_Q + '\n')
 
@@ -259,7 +263,6 @@ def write_one_story(schema_info, f_stories, f_Q_next):
             filled = attach_role_question_marker(filled, states, curr_state)
         if MARK_END_STATE:
             filled += (' ' + END_STATE_MARKER)
-
         # write text to file
         f_stories.write(filled + " ")
 
@@ -304,7 +307,7 @@ def write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, a
     :param alt_future_filled: the instantitated alternative future state
     '''
     f_Q_next.write(condition + '\n')
-    f_Q_next.write(str(alt_future_p) + ', ' + alt_future + ', ' + alt_future_filled + '\n')
+    f_Q_next.write(str(alt_future_p) + '\t ' + alt_future + '\t' + alt_future_filled + '\n')
 
 
 
@@ -486,7 +489,8 @@ def get_grounding(entities, roles):
     return grounding
 
 
-def get_filled_state(curr_state, curr_grounding, all_states, all_attributes, ATTACH_ROLE_MARKER = False):
+def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
+                     ATTACH_ROLE_MARKER = False, GEN_SYMBOLIC_STATES = False):
     '''
     generate a text sentence representation of a state with filled groundings
     :param curr_state:
@@ -495,15 +499,27 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes, ATT
     :param all_attributes:
     :return:
     '''
+    if ATTACH_ROLE_MARKER and GEN_SYMBOLIC_STATES:
+        raise ValueError('¯\_(ツ)_/¯ You probably don\'t want both '
+                         'ATTACH_ROLE_MARKER & GEN_SYMBOLIC_STATES...')
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
+
+    # print(text_split)
 
     for i in range(1, len(text_split), 2):
         slot = text_split[i].split('.')
         text_split[i] = all_attributes[curr_grounding[slot[0]]][slot[1]]
         if ATTACH_ROLE_MARKER:
-            text_split[i] = slot[0] + ' ' + text_split[i]
+            if slot[1] in ATTACH_ROLE_MARKER_BEFORE:
+                text_split[i] = slot[0] + ' ' + text_split[i]
+
     # get a filled state
     filled = ''.join(text_split)
+
+    if ATTACH_ROLE_MARKER:
+        print(filled)
+        print()
+
     if filled[0] == "\"":
         filled = filled[0] + filled[1].upper() + filled[2:]
     else:
