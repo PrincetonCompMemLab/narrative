@@ -35,7 +35,9 @@ def main(rand_seed):
     for i in range(n_input_files * n_iterations):
         f_idx = np.mod(i, n_input_files)
         # write to the output file
-        rand_seed = write_stories(schema_info[f_idx], f_stories, f_QA, rand_seed, n_repeats)
+        rand_seed = write_stories(schema_info[f_idx],
+                                  f_stories, f_QA,
+                                  rand_seed, n_repeats)
 
     f_stories.close()
     f_QA.write('END_OF_FILE')

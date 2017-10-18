@@ -9,16 +9,22 @@ import json
 
 
 # constants
-MARK_END_STATE = True
+# attach end_of_state, end_of_story marker
+MARK_END_STATE = False
+# attach question marker at the end of the state (e.g. Q_subject)
 ATTACH_QUESTIONS = False
+# it generates symbolic states(e.g. "Will Say_goodbye Nick")
+GEN_SYMBOLIC_STATES = False
+# inserts the role before the filler (e.g. Subject Mariko bla bla bla...)
 ATTACH_ROLE_MARKER = False
 ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
-GEN_SYMBOLIC_STATES = True
-FILE_FORMAT = '.txt'
+
+
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
 OUTPUT_ROOT = '../story'
 INPUT_PATH  = '../schema'
+FILE_FORMAT = '.txt'
 
 # helper functions 
 class Transition:
@@ -240,11 +246,6 @@ def write_one_story(schema_info, f_stories, f_Q_next):
     # Loop through statess
     curr_state = 'BEGIN'
     while True:
-        # Output state text with fillers
-        # get a un-filled state
-        filled, fillers = get_filled_state(curr_state, grounding, states, attributes,
-                                           ATTACH_ROLE_MARKER, GEN_SYMBOLIC_STATES)
-
         # get the filled state for the question file
         # "filled_Q" and "filled" are sync-ed by having the same arguments (1st 4)
         filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes)
@@ -258,6 +259,11 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         had_alt_future = False
         # collect question text
         f_Q_next.write('\n' + filled_Q + '\n')
+
+
+        # get a un-filled state
+        filled, fillers = get_filled_state(curr_state, grounding, states, attributes,
+                                           ATTACH_ROLE_MARKER, GEN_SYMBOLIC_STATES)
 
         if ATTACH_QUESTIONS:
             filled = attach_role_question_marker(filled, states, curr_state)
@@ -311,7 +317,8 @@ def write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, a
 
 
 
-def get_filler_inconsistent_next_state(fillers, people_introduced, people_all, curr_state, grounding, states, attributes, f_Q_next):
+def get_filler_inconsistent_next_state(fillers, people_introduced, people_all,
+                                       curr_state, grounding, states, attributes, f_Q_next):
     '''
     - get an altnerative next state, with inconsistent filler (so it is "impossible" in this sense)
     - update people_introduced
@@ -346,7 +353,8 @@ def get_filler_inconsistent_next_state(fillers, people_introduced, people_all, c
 
 
 
-def generate_alternative_grounding(next_characters, grounding, curr_state, people_introduced, states, attributes, f_Q_next):
+def generate_alternative_grounding(next_characters, grounding, curr_state,
+                                   people_introduced, states, attributes, f_Q_next):
     '''
     generate an alternative grounding by swapping role-filler binding
     e.g. exchange emcee <---> poet
@@ -381,7 +389,8 @@ def generate_alternative_grounding(next_characters, grounding, curr_state, peopl
 
 def alter_grounding(n_alt, all_characters, grounding, all_introduced_characters):
     '''
-    given some information the fillers who are gonna show up next + the introduced fillers + n_fillers to be altered
+    given some information the fillers who are gonna show up next
+    + the introduced fillers + n_fillers to be altered
     generate an altered grounding and write to text, if exisits
     :param n_alt: the number of fillers to be changed
     :param all_characters: fillers who are gonna show up next
@@ -406,7 +415,8 @@ def alter_grounding(n_alt, all_characters, grounding, all_introduced_characters)
         alt_next_grounding[the_next_character_role] = the_alt_character
         # attach specs
         condition = 'Alter_%d_fillers: %s->%s (%s->%s) ' \
-                    % (n_alt, the_next_character, the_alt_character, the_next_character_role, the_alt_character_role)
+                    % (n_alt, the_next_character, the_alt_character,
+                       the_next_character_role, the_alt_character_role)
     elif n_alt > 1:
         # get all characters who are gonna show up next
         the_next_k_characters = list(all_characters)
@@ -444,6 +454,17 @@ def get_role_of_filler(target_filler, grounding):
     '''
     for role, filler in grounding.items():
         if filler == target_filler: return role
+
+
+def get_filler_of_role(target_role, grounding):
+    '''
+    complementary function of the above one...
+    :param target_role:
+    :param grounding:
+    :return:
+    '''
+    for role, filler in grounding.items():
+        if role == target_role: return filler
 
 
 def update_introduced_characters(temp_fillers, people_introduced, people_all):
@@ -489,6 +510,7 @@ def get_grounding(entities, roles):
     return grounding
 
 
+
 def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
                      ATTACH_ROLE_MARKER = False, GEN_SYMBOLIC_STATES = False):
     '''
@@ -497,29 +519,40 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     :param curr_grounding:
     :param all_states:
     :param all_attributes:
+    :param ATTACH_ROLE_MARKER:
+    :param GEN_SYMBOLIC_STATES: when turned on, it generates symbolic states
     :return:
     '''
+
     if ATTACH_ROLE_MARKER and GEN_SYMBOLIC_STATES:
         raise ValueError('¯\_(ツ)_/¯ You probably don\'t want both '
                          'ATTACH_ROLE_MARKER & GEN_SYMBOLIC_STATES...')
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
-
-    # print(text_split)
-
+    filler_names = []
+    # loop over segments
     for i in range(1, len(text_split), 2):
         slot = text_split[i].split('.')
         text_split[i] = all_attributes[curr_grounding[slot[0]]][slot[1]]
+
         if ATTACH_ROLE_MARKER:
             if slot[1] in ATTACH_ROLE_MARKER_BEFORE:
                 text_split[i] = slot[0] + ' ' + text_split[i]
+        if GEN_SYMBOLIC_STATES:
+            # gather new filler name
+            this_filler = get_filler_of_role(slot[0], curr_grounding)
+            if this_filler not in filler_names:
+                filler_names.append(this_filler)
+
+    if GEN_SYMBOLIC_STATES:
+        # probably doesn't make a lot of sense if we have more than 2 agents?
+        insert_loc = 0 if len(filler_names) == 0 else 1
+        filler_names.insert(insert_loc, curr_state)
+        sym_state = ' '.join(filler_names)
+        sym_state += '.' if curr_state == 'END' else ','
+        return sym_state, text_split
 
     # get a filled state
     filled = ''.join(text_split)
-
-    if ATTACH_ROLE_MARKER:
-        print(filled)
-        print()
-
     if filled[0] == "\"":
         filled = filled[0] + filled[1].upper() + filled[2:]
     else:
