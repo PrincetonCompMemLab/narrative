@@ -313,7 +313,7 @@ def write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, a
     :param alt_future_filled: the instantitated alternative future state
     '''
     f_Q_next.write(condition + '\n')
-    f_Q_next.write(str(alt_future_p) + '\t ' + alt_future + '\t' + alt_future_filled + '\n')
+    f_Q_next.write(str(alt_future_p) + '\t' + alt_future + '\t' + alt_future_filled + '\n')
 
 
 
