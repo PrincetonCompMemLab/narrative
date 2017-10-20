@@ -242,6 +242,7 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         if type == 'Person': role_Person.append(role)
     # dump key-value binding to the file
     f_Q_next.write(json.dumps(grounding) + '\n')
+    f_Q_next.write(json.dumps(attributes) + '\n')
 
     # Loop through statess
     curr_state = 'BEGIN'
