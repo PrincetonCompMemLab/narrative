@@ -40,7 +40,6 @@ def main(rand_seed):
                                   rand_seed, n_repeats)
 
     f_stories.close()
-    f_QA.write('END_OF_FILE')
     f_QA.close()
 
 if __name__ == "__main__":
