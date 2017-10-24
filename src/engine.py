@@ -545,11 +545,8 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
                 filler_names.append(this_filler)
 
     if GEN_SYMBOLIC_STATES:
-        # probably doesn't make a lot of sense if we have more than 2 agents?
-        insert_loc = 0 if len(filler_names) == 0 else 1
-        filler_names.insert(insert_loc, curr_state)
-        sym_state = ' '.join(filler_names)
-        sym_state += '.' if curr_state == 'END' else ','
+        sym_state = '%s(%s)' %(curr_state, ','.join(filler_names))
+        sym_state += '.' if curr_state == 'END' else ';'
         return sym_state, text_split
 
     # get a filled state
