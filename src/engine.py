@@ -277,8 +277,8 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         if curr_state == 'END':
             if MARK_END_STATE:
                 f_stories.write(END_STORY_MARKER)
-            f_stories.write(' \n\n')
-            f_Q_next.write(' \n\n')
+            f_stories.write('\n\n')
+            f_Q_next.write('\n\n')
             break
 
         # update: sample next state
