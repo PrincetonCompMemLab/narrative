@@ -242,6 +242,7 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         if type == 'Person': role_Person.append(role)
     # dump key-value binding to the file
     f_Q_next.write(json.dumps(grounding) + '\n')
+    f_Q_next.write(json.dumps(attributes) + '\n')
 
     # Loop through statess
     curr_state = 'BEGIN'
@@ -276,8 +277,8 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         if curr_state == 'END':
             if MARK_END_STATE:
                 f_stories.write(END_STORY_MARKER)
-            f_stories.write(' \n\n')
-            f_Q_next.write(' \n\n')
+            f_stories.write('\n\n')
+            f_Q_next.write('\n\n')
             break
 
         # update: sample next state
@@ -313,7 +314,7 @@ def write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, a
     :param alt_future_filled: the instantitated alternative future state
     '''
     f_Q_next.write(condition + '\n')
-    f_Q_next.write(str(alt_future_p) + '\t ' + alt_future + '\t' + alt_future_filled + '\n')
+    f_Q_next.write(str(alt_future_p) + '\t' + alt_future + '\t' + alt_future_filled + '\n')
 
 
 
@@ -524,9 +525,6 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     :return:
     '''
 
-    if ATTACH_ROLE_MARKER and GEN_SYMBOLIC_STATES:
-        raise ValueError('¯\_(ツ)_/¯ You probably don\'t want both '
-                         'ATTACH_ROLE_MARKER & GEN_SYMBOLIC_STATES...')
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
     filler_names = []
     # loop over segments
@@ -541,14 +539,14 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
             # gather new filler name
             this_filler = get_filler_of_role(slot[0], curr_grounding)
             if this_filler not in filler_names:
-                filler_names.append(this_filler)
+                if ATTACH_ROLE_MARKER:
+                    filler_names.append(slot[0] + ' ' + this_filler)
+                else:
+                    filler_names.append(this_filler)
 
     if GEN_SYMBOLIC_STATES:
-        # probably doesn't make a lot of sense if we have more than 2 agents?
-        insert_loc = 0 if len(filler_names) == 0 else 1
-        filler_names.insert(insert_loc, curr_state)
-        sym_state = ' '.join(filler_names)
-        sym_state += '.' if curr_state == 'END' else ','
+        sym_state = '%s(%s)' %(curr_state, ','.join(filler_names))
+        sym_state += '.' if curr_state == 'END' else ';'
         return sym_state, text_split
 
     # get a filled state

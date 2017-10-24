@@ -1,0 +1,238 @@
+{"Dessert_bought": "cake", "Drink_bought": "tea", "Emcee": "Olivia", "Friend": "Sarah", "Poet": "Julian", "Subject": "Mariko"}
+{"Olivia": {"Name": "Olivia", "Mood": "sad", "Hungry": "Yes", "Greeting": "Howdy", "Pronoun": "she", "Poem": "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons."}, "Will": {"Name": "Will", "Mood": "happy", "Hungry": "Yes", "Greeting": "Great to see you", "Pronoun": "he", "Poem": "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air."}, "Mariko": {"Name": "Mariko", "Mood": "nervous", "Hungry": "No", "Greeting": "I am glad you could make it", "Pronoun": "she", "Poem": "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong."}, "Pradeep": {"Name": "Pradeep", "Mood": "happy", "Hungry": "No", "Greeting": "Hey", "Pronoun": "he", "Poem": "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab."}, "Sarah": {"Name": "Sarah", "Mood": "nervous", "Hungry": "Yes", "Greeting": "Oh hi there", "Pronoun": "she", "Poem": "You may write me down in history with your bitter, twisted lies, you may trod me in the very dirt but still, like dust, I will rise."}, "Julian": {"Name": "Julian", "Mood": "sad", "Hungry": "No", "Greeting": "It has been too long", "Pronoun": "he", "Poem": "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils."}, "coffee": {"Name": "coffee", "Price": "3"}, "tea": {"Name": "tea", "Price": "2"}, "latte": {"Name": "latte", "Price": "5"}, "cake": {"Name": "cake", "Location": "display case"}, "sorbet": {"Name": "sorbet", "Location": "freezer"}, "mousse": {"Name": "mousse", "Location": "refrigerator"}}
+
+Mariko walked into the coffee shop on poetry night.
+Default
+0.4	Order_drink	She walked to the counter and decided on a tea.
+Truth
+0.6	Sit_down	She found an empty chair next to Sarah. "Oh hi there Mariko!" said Sarah. "I am glad you could make it Sarah!" Mariko replied.
+
+She found an empty chair next to Sarah. "Oh hi there Mariko!" said Sarah. "I am glad you could make it Sarah!" Mariko replied.
+Default
+0.5	Poet_performs	Julian stepped up to the microphone and read the poem that he had written: "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils." The crowd snapped their fingers politely.
+Truth
+0.5	Emcee_intro	Olivia, who was the emcee for tonight, walked to the front of the room and introduced the first poet, Julian.
+
+Olivia, who was the emcee for tonight, walked to the front of the room and introduced the first poet, Julian.
+Alter_1_fillers: Julian->Olivia (Poet->Emcee) 
+0	Poet_performs	Olivia stepped up to the microphone and read the poem that she had written: "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons." The crowd snapped their fingers politely.
+Truth
+1.0	Poet_performs	Julian stepped up to the microphone and read the poem that he had written: "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils." The crowd snapped their fingers politely.
+
+Julian stepped up to the microphone and read the poem that he had written: "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils." The crowd snapped their fingers politely.
+Alter_1_fillers: Sarah->Julian (Friend->Poet) 
+0	Subject_performs	Mariko then took at turn at the microphone. "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong." When she sat back down, Julian said that he loved the poem.
+Permute_2_fillers: Sarah->Mariko (Friend->Subject) Mariko->Julian (Subject->Poet) 
+0	Subject_performs	Julian then took at turn at the microphone. "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils." When he sat back down, Mariko said that she loved the poem.
+Subject.Mood == "nervous"
+0.8	Subject_declines	Mariko had also written a poem, but decided that she was not in the mood to share it today.
+Truth
+0.2	Subject_performs	Mariko then took at turn at the microphone. "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong." When she sat back down, Sarah said that she loved the poem.
+
+Mariko then took at turn at the microphone. "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong." When she sat back down, Sarah said that she loved the poem.
+Alter_1_fillers: Sarah->Olivia (Friend->Emcee) 
+0	Say_goodbye	After all the poets had performed, Mariko and Olivia said their goodbyes and walked toward the door.
+Permute_2_fillers: Sarah->Mariko (Friend->Subject) Mariko->Olivia (Subject->Emcee) 
+0	Say_goodbye	After all the poets had performed, Olivia and Mariko said their goodbyes and walked toward the door.
+Truth
+1.0	Say_goodbye	After all the poets had performed, Mariko and Sarah said their goodbyes and walked toward the door.
+
+After all the poets had performed, Mariko and Sarah said their goodbyes and walked toward the door.
+Alter_1_fillers: Mariko->Julian (Subject->Poet) 
+0	END	Julian made a mental note to come back again next week.
+Truth
+0.9	END	Mariko made a mental note to come back again next week.
+
+Mariko made a mental note to come back again next week.
+
+
+{"Barista": "Ben", "Dessert_crumbled": "muffin", "Drink_ordered": "coffee", "Policeman": "Olivia", "Subject": "Silvia", "Victim": "Nick"}
+{"Olivia": {"Name": "Olivia", "Pronoun": "she", "Pronoun_possessive": "her", "Pronoun_object": "her", "Reason_mad": "learned that her flight to the Bahamas was cancelled due to inclement weather", "Barista_saying": "\u201cIm so sorry you had to experience a coffee crime.\u201d", "Violent": "Yes", "Thirsty": "No"}, "Jesse": {"Name": "Jesse", "Pronoun": "he", "Pronoun_possessive": "his", "Pronoun_object": "him", "Reason_mad": "gotten into a fight with his mom", "Barista_saying": "\u201cIts not everyday you meet a coffee criminal.\u201d", "Violent": "Yes", "Thirsty": "Yes"}, "Nick": {"Name": "Nick", "Pronoun": "he", "Pronoun_possessive": "his", "Pronoun_object": "him", "Reason_mad": "gotten a parking ticket", "Barista_saying": "\u201cThe nectar of the gods makes people do crazy things.\u201d", "Violent": "No", "Thirsty": "No"}, "Vera": {"Name": "Vera", "Pronoun": "she", "Pronoun_possessive": "her", "Pronoun_object": "her", "Reason_mad": "found her calculus problem set ripped to shreds in her dog\u2019s cage", "Barista_saying": "\u201cSome people will do anything for the coffee fix.\u201d", "Violent": "No", "Thirsty": "Yes"}, "Silvia": {"Name": "Silvia", "Pronoun": "she", "Pronoun_possessive": "her", "Pronoun_object": "her", "Reason_mad": "realized that she had left her phone on the bus", "Barista_saying": "\u201cI think some caffeine would\u2019ve helped that one.\u201d", "Violent": "No", "Thirsty": "No"}, "Ben": {"Name": "Ben", "Pronoun": "he", "Pronoun_possessive": "his", "Pronoun_object": "him", "Reason_mad": "dropped his keys in a storm drain", "Barista_saying": "\u201cThere was no need to worry. The baristas are trained in kung fu.\u201d", "Violent": "Yes", "Thirsty": "No"}, "coffee": {"Name": "coffee"}, "mocha": {"Name": "mocha"}, "latte": {"Name": "latte"}, "cake": {"Name": "cake"}, "cookie": {"Name": "cookie"}, "lemonsquare": {"Name": "lemonsquare"}, "muffin": {"Name": "muffin"}}
+
+Silvia walked into the coffee shop angrily after having realized that she had left her phone on the bus.
+Default
+0.6	Walk_to_back	She walked to the back of the line and stood impatiently, watching the first person in line, Nick, staring idly at the menu. Suddenly she decided to walk to the front of the line and cut him.
+Truth
+0.4	Walk_to_front	She saw that there was a long line to order, so she impatiently walked to the front of the line and cut Nick, the first person in line.
+
+She saw that there was a long line to order, so she impatiently walked to the front of the line and cut Nick, the first person in line.
+Permute_2_fillers: Nick->Silvia (Victim->Subject) Silvia->Nick (Subject->Victim) 
+0	Step_in_front	Silvia was not having it that day, and she promptly stepped back in front of Nick.
+Default
+0.5	Say_excuse_me	Nick was astonished and said, “Excuse me?!’
+Truth
+0.5	Step_in_front	Nick was not having it that day, and he promptly stepped back in front of Silvia.
+
+Nick was not having it that day, and he promptly stepped back in front of Silvia.
+Alter_1_fillers: Silvia->Nick (Subject->Victim) 
+0	Ignore	Nick ignored her and proceeded to tell the barista that he would like a coffee.
+Default
+0.5	Subject_stares	Silvia turned to Nick and gave him a very mean look.
+Truth
+0.4	Ignore	Silvia ignored him and proceeded to tell the barista that she would like a coffee.
+
+Silvia ignored him and proceeded to tell the barista that she would like a coffee.
+Permute_2_fillers: Nick->Silvia (Victim->Subject) Silvia->Nick (Subject->Victim) 
+0	X_stare	Silvia stared back at Nick, as though daring him with her eyes to do something.Silvia refusing to engage with Nick, turned to the barista and said, ‘I was first in line!”
+Default
+0.3	X_shove	In retaliation, Nick pushed Silvia.
+Truth
+0.3	X_stare	Nick stared back at Silvia, as though daring her with his eyes to do something.Nick refusing to engage with Silvia, turned to the barista and said, ‘I was first in line!”
+
+Nick stared back at Silvia, as though daring her with his eyes to do something.Nick refusing to engage with Silvia, turned to the barista and said, ‘I was first in line!”
+Permute_2_fillers: Nick->Silvia (Victim->Subject) Silvia->Nick (Subject->Victim) 
+0	Dessert_crumble	Nick saw a muffin sitting like ammo next to the cash register, snatched it, and crumbled it above Silvia’s head. Everyone in line gasped. Silvia, in shock, didn’t move as crumbs tumbled down her ears and shoulders.
+Default
+0.4	Cream_splash	Silvia saw a small cup of cream on the counter, picked it up, and splashed it in Nick’s face. Everyone in line gasped. Nick stood there gaping, cream dripping from his chin.
+Truth
+0.6	Dessert_crumble	Silvia saw a muffin sitting like ammo next to the cash register, snatched it, and crumbled it above Nick’s head. Everyone in line gasped. Nick, in shock, didn’t move as crumbs tumbled down his ears and shoulders.
+
+Silvia saw a muffin sitting like ammo next to the cash register, snatched it, and crumbled it above Nick’s head. Everyone in line gasped. Nick, in shock, didn’t move as crumbs tumbled down his ears and shoulders.
+Alter_1_fillers: Silvia->Nick (Subject->Victim) 
+0	Call_policeman	The barista called over to a policeman standing in line, and she ordered Nick to leave before anyone pressed charges.
+Default
+0.7	Barista_orders	The barista ran out from behind the counter and ordered Silvia to leave.
+Truth
+0.3	Call_policeman	The barista called over to a policeman standing in line, and she ordered Silvia to leave before anyone pressed charges.
+
+The barista called over to a policeman standing in line, and she ordered Silvia to leave before anyone pressed charges.
+Permute_2_fillers: Nick->Silvia (Victim->Subject) Silvia->Nick (Subject->Victim) 
+0	Hate_coffee	Nick stared at Silvia one last time, then stormed out of the coffee shop, yelling, “I hate coffee!”
+Default
+0.3	Love_juice	Silvia gave Nick one last stare, turned, and ran out yelling, “Juice is better, anyway!”
+Truth
+0.7	Hate_coffee	Silvia stared at Nick one last time, then stormed out of the coffee shop, yelling, “I hate coffee!”
+
+Silvia stared at Nick one last time, then stormed out of the coffee shop, yelling, “I hate coffee!”
+Alter_1_fillers: Nick->Silvia (Victim->Subject) 
+0	END	Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed Silvia a bunch of napkins and gave her a free drink out of sympathy, saying “There was no need to worry. The baristas are trained in kung fu.”
+Truth
+1.0	END	Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed Nick a bunch of napkins and gave him a free drink out of sympathy, saying “There was no need to worry. The baristas are trained in kung fu.”
+
+Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed Nick a bunch of napkins and gave him a free drink out of sympathy, saying “There was no need to worry. The baristas are trained in kung fu.”
+
+
+{"Dessert_bought": "cake", "Drink_bought": "tea", "Emcee": "Olivia", "Friend": "Sarah", "Poet": "Pradeep", "Subject": "Will"}
+{"Olivia": {"Name": "Olivia", "Mood": "sad", "Hungry": "Yes", "Greeting": "Howdy", "Pronoun": "she", "Poem": "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons."}, "Will": {"Name": "Will", "Mood": "happy", "Hungry": "Yes", "Greeting": "Great to see you", "Pronoun": "he", "Poem": "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air."}, "Mariko": {"Name": "Mariko", "Mood": "nervous", "Hungry": "No", "Greeting": "I am glad you could make it", "Pronoun": "she", "Poem": "He was my North, my South, my East and my West, my working week and my Sunday rest, my noon, my midnight, my talk, my song; I thought that love would last forever, I was wrong."}, "Pradeep": {"Name": "Pradeep", "Mood": "happy", "Hungry": "No", "Greeting": "Hey", "Pronoun": "he", "Poem": "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab."}, "Sarah": {"Name": "Sarah", "Mood": "nervous", "Hungry": "Yes", "Greeting": "Oh hi there", "Pronoun": "she", "Poem": "You may write me down in history with your bitter, twisted lies, you may trod me in the very dirt but still, like dust, I will rise."}, "Julian": {"Name": "Julian", "Mood": "sad", "Hungry": "No", "Greeting": "It has been too long", "Pronoun": "he", "Poem": "I wandered lonely as a cloud that floats on high over vales and hills, when all at once I saw a crowd, A host, of golden daffodils."}, "coffee": {"Name": "coffee", "Price": "3"}, "tea": {"Name": "tea", "Price": "2"}, "latte": {"Name": "latte", "Price": "5"}, "cake": {"Name": "cake", "Location": "display case"}, "sorbet": {"Name": "sorbet", "Location": "freezer"}, "mousse": {"Name": "mousse", "Location": "refrigerator"}}
+
+Will walked into the coffee shop on poetry night.
+Subject.Hungry == "Yes"
+0.1	Sit_down	He found an empty chair next to Sarah. "Oh hi there Will!" said Sarah. "Great to see you Sarah!" Will replied.
+Truth
+0.9	Order_drink	He walked to the counter and decided on a tea.
+
+He walked to the counter and decided on a tea.
+
+He found an empty chair next to Sarah. "Oh hi there Will!" said Sarah. "Great to see you Sarah!" Will replied.
+Default
+0.5	Poet_performs	Pradeep stepped up to the microphone and read the poem that he had written: "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab." The crowd snapped their fingers politely.
+Truth
+0.5	Emcee_intro	Olivia, who was the emcee for tonight, walked to the front of the room and introduced the first poet, Pradeep.
+
+Olivia, who was the emcee for tonight, walked to the front of the room and introduced the first poet, Pradeep.
+Alter_1_fillers: Pradeep->Olivia (Poet->Emcee) 
+0	Poet_performs	Olivia stepped up to the microphone and read the poem that she had written: "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons." The crowd snapped their fingers politely.
+Truth
+1.0	Poet_performs	Pradeep stepped up to the microphone and read the poem that he had written: "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab." The crowd snapped their fingers politely.
+
+Pradeep stepped up to the microphone and read the poem that he had written: "Twas brillig, and the slithy toves did gyre and gimble in the wabe: all mimsy were the borogoves, and the mome raths outgrab." The crowd snapped their fingers politely.
+Alter_1_fillers: Sarah->Pradeep (Friend->Poet) 
+0	Subject_performs	Will then took at turn at the microphone. "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air." When he sat back down, Pradeep said that he loved the poem.
+Permute_2_fillers: Sarah->Pradeep (Friend->Poet) Will->Olivia (Subject->Emcee) 
+0	Subject_performs	Olivia then took at turn at the microphone. "For I have known them all already, known them all: have known the evenings, mornings, afternoons; I have measured out my life with coffee spoons." When she sat back down, Pradeep said that he loved the poem.
+Subject.Mood == "happy"
+0.1	Subject_declines	Will had also written a poem, but decided that he was not in the mood to share it today.
+Truth
+0.9	Subject_performs	Will then took at turn at the microphone. "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air." When he sat back down, Sarah said that she loved the poem.
+
+Will then took at turn at the microphone. "Love at the lips was touch, as sweet as I could bear, and once that seemed too much, I lived on air." When he sat back down, Sarah said that she loved the poem.
+Alter_1_fillers: Sarah->Pradeep (Friend->Poet) 
+0	Say_goodbye	After all the poets had performed, Will and Pradeep said their goodbyes and walked toward the door.
+Permute_2_fillers: Sarah->Will (Friend->Subject) Will->Sarah (Subject->Friend) 
+0	Say_goodbye	After all the poets had performed, Sarah and Will said their goodbyes and walked toward the door.
+Truth
+1.0	Say_goodbye	After all the poets had performed, Will and Sarah said their goodbyes and walked toward the door.
+
+After all the poets had performed, Will and Sarah said their goodbyes and walked toward the door.
+Alter_1_fillers: Will->Sarah (Subject->Friend) 
+0	Order_dessert	On the way out, Sarah ordered a cake to take home. The barista took one from the display case and wrapped it up to go.
+Subject.Hungry == "Yes"
+0.3	END	Will made a mental note to come back again next week.
+Truth
+0.7	Order_dessert	On the way out, Will ordered a cake to take home. The barista took one from the display case and wrapped it up to go.
+
+On the way out, Will ordered a cake to take home. The barista took one from the display case and wrapped it up to go.
+Alter_1_fillers: Will->Pradeep (Subject->Poet) 
+0	END	Pradeep made a mental note to come back again next week.
+Truth
+1.0	END	Will made a mental note to come back again next week.
+
+Will made a mental note to come back again next week.
+
+
+{"Barista": "Nick", "Dessert_crumbled": "cake", "Drink_ordered": "mocha", "Policeman": "Silvia", "Subject": "Olivia", "Victim": "Jesse"}
+{"Olivia": {"Name": "Olivia", "Pronoun": "she", "Pronoun_possessive": "her", "Pronoun_object": "her", "Reason_mad": "learned that her flight to the Bahamas was cancelled due to inclement weather", "Barista_saying": "\u201cIm so sorry you had to experience a coffee crime.\u201d", "Violent": "Yes", "Thirsty": "No"}, "Jesse": {"Name": "Jesse", "Pronoun": "he", "Pronoun_possessive": "his", "Pronoun_object": "him", "Reason_mad": "gotten into a fight with his mom", "Barista_saying": "\u201cIts not everyday you meet a coffee criminal.\u201d", "Violent": "Yes", "Thirsty": "Yes"}, "Nick": {"Name": "Nick", "Pronoun": "he", "Pronoun_possessive": "his", "Pronoun_object": "him", "Reason_mad": "gotten a parking ticket", "Barista_saying": "\u201cThe nectar of the gods makes people do crazy things.\u201d", "Violent": "No", "Thirsty": "No"}, "Vera": {"Name": "Vera", "Pronoun": "she", "Pronoun_possessive": "her", "Pronoun_object": "her", "Reason_mad": "found her calculus problem set ripped to shreds in her dog\u2019s cage", "Barista_saying": "\u201cSome people will do anything for the coffee fix.\u201d", "Violent": "No", "Thirsty": "Yes"}, "Silvia": {"Name": "Silvia", "Pronoun": "she", "Pronoun_possessive": "her", "Pronoun_object": "her", "Reason_mad": "realized that she had left her phone on the bus", "Barista_saying": "\u201cI think some caffeine would\u2019ve helped that one.\u201d", "Violent": "No", "Thirsty": "No"}, "Ben": {"Name": "Ben", "Pronoun": "he", "Pronoun_possessive": "his", "Pronoun_object": "him", "Reason_mad": "dropped his keys in a storm drain", "Barista_saying": "\u201cThere was no need to worry. The baristas are trained in kung fu.\u201d", "Violent": "Yes", "Thirsty": "No"}, "coffee": {"Name": "coffee"}, "mocha": {"Name": "mocha"}, "latte": {"Name": "latte"}, "cake": {"Name": "cake"}, "cookie": {"Name": "cookie"}, "lemonsquare": {"Name": "lemonsquare"}, "muffin": {"Name": "muffin"}}
+
+Olivia walked into the coffee shop angrily after having learned that her flight to the Bahamas was cancelled due to inclement weather.
+Default
+0.4	Walk_to_front	She saw that there was a long line to order, so she impatiently walked to the front of the line and cut Jesse, the first person in line.
+Truth
+0.6	Walk_to_back	She walked to the back of the line and stood impatiently, watching the first person in line, Jesse, staring idly at the menu. Suddenly she decided to walk to the front of the line and cut him.
+
+She walked to the back of the line and stood impatiently, watching the first person in line, Jesse, staring idly at the menu. Suddenly she decided to walk to the front of the line and cut him.
+Permute_2_fillers: Jesse->Olivia (Victim->Subject) Olivia->Jesse (Subject->Victim) 
+0	Step_in_front	Olivia was not having it that day, and she promptly stepped back in front of Jesse.
+Victim.Violent == "Yes"
+0.3	Say_excuse_me	Jesse was astonished and said, “Excuse me?!’
+Truth
+0.7	Step_in_front	Jesse was not having it that day, and he promptly stepped back in front of Olivia.
+
+Jesse was not having it that day, and he promptly stepped back in front of Olivia.
+Permute_2_fillers: Jesse->Olivia (Victim->Subject) Olivia->Jesse (Subject->Victim) 
+0	Shove	Jesse proceeded to give a slight shove to Olivia.
+Subject.Violent == "Yes"
+0.2	Subject_stares	Olivia turned to Jesse and gave him a very mean look.
+Truth
+0.6	Shove	Olivia proceeded to give a slight shove to Jesse.
+
+Olivia proceeded to give a slight shove to Jesse.
+Alter_1_fillers: Jesse->Olivia (Victim->Subject) 
+0	Turn_to_barista	Olivia, refusing to engage with him, turned to the barista and said, ‘I was first in line!”
+Victim.Violent == "Yes"
+0.6	X_shove	In retaliation, Jesse pushed Olivia.
+Truth
+0.2	Turn_to_barista	Jesse, refusing to engage with her, turned to the barista and said, ‘I was first in line!”
+
+Jesse, refusing to engage with her, turned to the barista and said, ‘I was first in line!”
+Permute_2_fillers: Jesse->Olivia (Victim->Subject) Olivia->Jesse (Subject->Victim) 
+0	Cream_splash	Jesse saw a small cup of cream on the counter, picked it up, and splashed it in Olivia’s face. Everyone in line gasped. Olivia stood there gaping, cream dripping from her chin.
+Default
+0.4	Dessert_crumble	Olivia saw a cake sitting like ammo next to the cash register, snatched it, and crumbled it above Jesse’s head. Everyone in line gasped. Jesse, in shock, didn’t move as crumbs tumbled down his ears and shoulders.
+Truth
+0.6	Cream_splash	Olivia saw a small cup of cream on the counter, picked it up, and splashed it in Jesse’s face. Everyone in line gasped. Jesse stood there gaping, cream dripping from his chin.
+
+Olivia saw a small cup of cream on the counter, picked it up, and splashed it in Jesse’s face. Everyone in line gasped. Jesse stood there gaping, cream dripping from his chin.
+Alter_1_fillers: Olivia->Jesse (Subject->Victim) 
+0	Barista_orders	The barista ran out from behind the counter and ordered Jesse to leave.
+Subject.Violent == "Yes"
+0.8	Call_policeman	The barista called over to a policeman standing in line, and she ordered Olivia to leave before anyone pressed charges.
+Truth
+0.2	Barista_orders	The barista ran out from behind the counter and ordered Olivia to leave.
+
+The barista ran out from behind the counter and ordered Olivia to leave.
+Permute_2_fillers: Jesse->Olivia (Victim->Subject) Olivia->Jesse (Subject->Victim) 
+0	Love_juice	Jesse gave Olivia one last stare, turned, and ran out yelling, “Juice is better, anyway!”
+Default
+0.3	Hate_coffee	Olivia stared at Jesse one last time, then stormed out of the coffee shop, yelling, “I hate coffee!”
+Truth
+0.7	Love_juice	Olivia gave Jesse one last stare, turned, and ran out yelling, “Juice is better, anyway!”
+
+Olivia gave Jesse one last stare, turned, and ran out yelling, “Juice is better, anyway!”
+Alter_1_fillers: Jesse->Olivia (Victim->Subject) 
+0	END	Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed Olivia a bunch of napkins and gave her a free drink out of sympathy, saying “The nectar of the gods makes people do crazy things.”
+Truth
+1.0	END	Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed Jesse a bunch of napkins and gave him a free drink out of sympathy, saying “The nectar of the gods makes people do crazy things.”
+
+Everyone at the coffee shop turned to each other wondering if that had really just happened. The barista handed Jesse a bunch of napkins and gave him a free drink out of sympathy, saying “The nectar of the gods makes people do crazy things.”
+
+

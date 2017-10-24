@@ -1,0 +1,8 @@
+BEGIN(Mariko); Sit_down(Mariko,Sarah); Emcee_intro(Olivia,Julian); Poet_performs(Julian); Subject_performs(Mariko,Sarah); Say_goodbye(Mariko,Sarah); END(Mariko). 
+
+BEGIN(Silvia); Walk_to_front(Silvia,Nick); Step_in_front(Nick,Silvia); Ignore(Silvia,Nick,coffee); X_stare(Nick,Silvia); Dessert_crumble(Silvia,muffin,Nick); Call_policeman(Olivia,Silvia); Hate_coffee(Silvia,Nick); END(Nick,Ben). 
+
+BEGIN(Will); Order_drink(Will,tea); Sit_down(Will,Sarah); Emcee_intro(Olivia,Pradeep); Poet_performs(Pradeep); Subject_performs(Will,Sarah); Say_goodbye(Will,Sarah); Order_dessert(Will,cake); END(Will). 
+
+BEGIN(Olivia); Walk_to_back(Olivia,Jesse); Step_in_front(Jesse,Olivia); Shove(Olivia,Jesse); X_stare(Jesse,Olivia); Dessert_crumble(Olivia,cake,Jesse); Call_policeman(Silvia,Olivia); Hate_coffee(Olivia,Jesse); END(Jesse,Nick). 
+
