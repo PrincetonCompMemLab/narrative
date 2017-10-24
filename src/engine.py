@@ -525,9 +525,9 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     :return:
     '''
 
-    if ATTACH_ROLE_MARKER and GEN_SYMBOLIC_STATES:
-        raise ValueError('¯\_(ツ)_/¯ You probably don\'t want both '
-                         'ATTACH_ROLE_MARKER & GEN_SYMBOLIC_STATES...')
+    # if ATTACH_ROLE_MARKER and GEN_SYMBOLIC_STATES:
+    #     raise ValueError('¯\_(ツ)_/¯ You probably don\'t want both '
+    #                      'ATTACH_ROLE_MARKER & GEN_SYMBOLIC_STATES...')
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
     filler_names = []
     # loop over segments
@@ -542,7 +542,10 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
             # gather new filler name
             this_filler = get_filler_of_role(slot[0], curr_grounding)
             if this_filler not in filler_names:
-                filler_names.append(this_filler)
+                if ATTACH_ROLE_MARKER:
+                    filler_names.append(slot[0] + ' ' + this_filler)
+                else:
+                    filler_names.append(this_filler)
 
     if GEN_SYMBOLIC_STATES:
         sym_state = '%s(%s)' %(curr_state, ','.join(filler_names))
