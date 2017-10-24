@@ -525,9 +525,6 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     :return:
     '''
 
-    # if ATTACH_ROLE_MARKER and GEN_SYMBOLIC_STATES:
-    #     raise ValueError('¯\_(ツ)_/¯ You probably don\'t want both '
-    #                      'ATTACH_ROLE_MARKER & GEN_SYMBOLIC_STATES...')
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
     filler_names = []
     # loop over segments
