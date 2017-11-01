@@ -1,5 +1,6 @@
 src/__pycache__/*
 src/.idea/*
+.idea/*
 *.pyc
 
 story/
