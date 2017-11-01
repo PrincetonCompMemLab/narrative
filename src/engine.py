@@ -4,22 +4,22 @@ import os
 import argparse
 import numpy as np
 import re
-import sys
+#import sys  # not used
 import json
 
 
 # constants
 # attach end_of_state, end_of_story marker
-MARK_END_STATE = False
+# MARK_END_STATE = False
 # attach question marker at the end of the state (e.g. Q_subject)
-ATTACH_QUESTIONS = False
+# ATTACH_QUESTIONS = False
 # it generates symbolic states(e.g. "Will Say_goodbye Nick")
-GEN_SYMBOLIC_STATES = False
+# GEN_SYMBOLIC_STATES = False
 # inserts the role before the filler (e.g. Subject Mariko bla bla bla...)
-ATTACH_ROLE_MARKER = False
-ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
+# ATTACH_ROLE_MARKER = False
+# ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
 
-
+# These global variables are probably fine!
 END_STATE_MARKER = 'ENDOFSTATE'
 END_STORY_MARKER = 'ENDOFSTORY'
 OUTPUT_ROOT = '../story'
@@ -153,7 +153,7 @@ def read_schema_file(input_fname):
     #   state
     #   transition
     assert f.readline().strip() == "States", "States must follow Roles"
-    f.readline() # Dashed line
+    f.readline()  # Dashed line
     while True:
         state_name = f.readline().strip()
         text = f.readline().strip()
@@ -219,18 +219,38 @@ def open_output_file(output_path, input_fname, n_iterations, n_repeats):
     return f_output
 
 
-def write_stories(schema_info, f_stories, f_Q_next, rand_seed, n_repeats):
+def write_stories(schema_info, f_stories, f_Q_next, rand_seed, n_repeats,
+                  mark_end_state=False, attach_questions=False,
+                  gen_symbolic_states=False, attach_role_marker=False,
+                  attach_role_maker_before=None
+                  ):
+
+    # set the "global" variables. These don't change from story to story
+    stories_kwargs = dict(
+        mark_end_state=mark_end_state, attach_questions=attach_questions,
+        gen_symbolic_states=gen_symbolic_states, attach_role_marker=attach_role_marker,
+        attach_role_maker_before=attach_role_maker_before
+    )
+
     # Generate stories
     for i in range(n_repeats):
         np.random.seed(rand_seed)
-        write_one_story(schema_info, f_stories, f_Q_next)
+        write_one_story(schema_info, f_stories, f_Q_next, **stories_kwargs)
         # increment the seed, so that every story uses a different seed value
         # but different runs of run_engine.py use the same sequence of seed
         rand_seed += 1
     return rand_seed
 
 
-def write_one_story(schema_info, f_stories, f_Q_next):
+def write_one_story(schema_info, f_stories, f_Q_next,
+                    mark_end_state=False, attach_questions=False,
+                    gen_symbolic_states=False, attach_role_marker=False,
+                    attach_role_maker_before=None):
+    # using default parameters is probably better than global variables.
+
+    # set get_filled_state kwargs (static)
+    gfs_kwargs = dict(attach_role_marker=attach_role_marker, gen_symbolic_states=gen_symbolic_states,
+                      attach_role_maker_before=attach_role_maker_before)
 
     (attributes, entities, roles, states) = schema_info
     grounding = get_grounding(entities, roles)
@@ -244,12 +264,13 @@ def write_one_story(schema_info, f_stories, f_Q_next):
     f_Q_next.write(json.dumps(grounding) + '\n')
     f_Q_next.write(json.dumps(attributes) + '\n')
 
-    # Loop through statess
+
+    # Loop through states
     curr_state = 'BEGIN'
     while True:
         # get the filled state for the question file
         # "filled_Q" and "filled" are sync-ed by having the same arguments (1st 4)
-        filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes)
+        filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
         # don't write question in the 1st iteration
         # there is no next state if end
         # exists alternative future  -> necessary -> exists 2AFC
@@ -261,21 +282,19 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         # collect question text
         f_Q_next.write('\n' + filled_Q + '\n')
 
-
         # get a un-filled state
-        filled, fillers = get_filled_state(curr_state, grounding, states, attributes,
-                                           ATTACH_ROLE_MARKER, GEN_SYMBOLIC_STATES)
+        filled, fillers = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
 
-        if ATTACH_QUESTIONS:
+        if attach_questions:
             filled = attach_role_question_marker(filled, states, curr_state)
-        if MARK_END_STATE:
+        if mark_end_state:
             filled += (' ' + END_STATE_MARKER)
         # write text to file
         f_stories.write(filled + " ")
 
         # stopping criterion
         if curr_state == 'END':
-            if MARK_END_STATE:
+            if mark_end_state:
                 f_stories.write(END_STORY_MARKER)
             f_stories.write('\n\n')
             f_Q_next.write('\n\n')
@@ -296,7 +315,7 @@ def write_one_story(schema_info, f_stories, f_Q_next):
         alt_future = get_alternative_future(prev_state, curr_state, states, grounding, attributes)
         if alt_future != 0:
             had_alt_future = True
-            alt_future_filled, _ = get_filled_state(alt_future, grounding, states, attributes)
+            alt_future_filled, _ = get_filled_state(alt_future, grounding, states, attributes, **gfs_kwargs)
             # get the probability of the alternative future
             distribution, condition = states[prev_state].get_distribution(grounding, attributes)
             alt_future_p = distribution.get(alt_future)
@@ -317,11 +336,12 @@ def write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, a
     f_Q_next.write(str(alt_future_p) + '\t' + alt_future + '\t' + alt_future_filled + '\n')
 
 
-
 def get_filler_inconsistent_next_state(fillers, people_introduced, people_all,
-                                       curr_state, grounding, states, attributes, f_Q_next):
+                                       curr_state, grounding, states, attributes, f_Q_next,
+                                       attach_role_marker=False, gen_symbolic_states=False,
+                                       attach_role_maker_before=None):
     '''
-    - get an altnerative next state, with inconsistent filler (so it is "impossible" in this sense)
+    - get an alternative next state, with inconsistent filler (so it is "impossible" in this sense)
     - update people_introduced
     :param fillers: a bunch of fillers
     :param people_introduced: the set of introduced fillers with type "Person"
@@ -338,12 +358,20 @@ def get_filler_inconsistent_next_state(fillers, people_introduced, people_all,
     '''
     # keep track of the introduced characters
     _, _, people_introduced = update_introduced_characters(fillers, people_introduced, people_all)
+
+    # set get_filled_state kwargs (static)
+    gfs_kwargs = dict(attach_role_marker=attach_role_marker, gen_symbolic_states=gen_symbolic_states,
+                      attach_role_maker_before=attach_role_maker_before)
+
     # compute people who are gonna appear next
-    next_state_temp, next_fillers = get_filled_state(curr_state, grounding, states, attributes)
+    next_state_temp, next_fillers = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
+
     # print('->:%s\n' % next_state_temp)
     next_characters, _, _ = update_introduced_characters(next_fillers, people_introduced, people_all)
+
     # compute the just-introduced characters
     next_characters = people_introduced.intersection(next_characters)
+
     # get alternative grounding, if exists
     alt_future, condition = generate_alternative_grounding(
         next_characters, grounding, curr_state, people_introduced,
@@ -352,10 +380,10 @@ def get_filler_inconsistent_next_state(fillers, people_introduced, people_all,
     return alt_future, people_introduced
 
 
-
-
 def generate_alternative_grounding(next_characters, grounding, curr_state,
-                                   people_introduced, states, attributes, f_Q_next):
+                                   people_introduced, states, attributes, f_Q_next,
+                                   attach_role_marker=False, gen_symbolic_states=False,
+                                   attach_role_maker_before=None):
     '''
     generate an alternative grounding by swapping role-filler binding
     e.g. exchange emcee <---> poet
@@ -371,8 +399,12 @@ def generate_alternative_grounding(next_characters, grounding, curr_state,
     # set default return values
     condition = 0
     alt_future = 0
-    # calcuate the number of characters in the next state
+    # calculate the number of characters in the next state
     num_characters_next_state = len(next_characters)
+    # set get_filled_state kwargs (static)
+    gfs_kwargs = dict(attach_role_marker=attach_role_marker, gen_symbolic_states=gen_symbolic_states,
+                      attach_role_maker_before=attach_role_maker_before)
+
     # try to alter k fillers, k = 1,..., num_characters_next_state
     for k in range(num_characters_next_state):
         condition, alt_next_grounding = alter_grounding(k+1, next_characters, grounding, people_introduced)
@@ -381,7 +413,7 @@ def generate_alternative_grounding(next_characters, grounding, curr_state,
             continue
         else:
             # get a instantiated state
-            alt_future_filled, _ = get_filled_state(curr_state, alt_next_grounding, states, attributes)
+            alt_future_filled, _ = get_filled_state(curr_state, alt_next_grounding, states, attributes, **gfs_kwargs)
             # write to question file
             alt_future = curr_state
             write_alt_next_state_q_file(f_Q_next, condition, 0, alt_future, alt_future_filled)
@@ -511,19 +543,23 @@ def get_grounding(entities, roles):
     return grounding
 
 
-
 def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
-                     ATTACH_ROLE_MARKER = False, GEN_SYMBOLIC_STATES = False):
+                     attach_role_marker=False, gen_symbolic_states=False,
+                     attach_role_maker_before=None):
     '''
     generate a text sentence representation of a state with filled groundings
     :param curr_state:
     :param curr_grounding:
     :param all_states:
     :param all_attributes:
-    :param ATTACH_ROLE_MARKER:
-    :param GEN_SYMBOLIC_STATES: when turned on, it generates symbolic states
+    :param attach_role_marker:
+    :param attach_role_maker_before:
+    :param gen_symbolic_states: when turned on, it generates symbolic states
     :return:
     '''
+
+    if attach_role_maker_before is None:
+        attach_role_maker_before = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
 
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
     filler_names = []
@@ -532,19 +568,19 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
         slot = text_split[i].split('.')
         text_split[i] = all_attributes[curr_grounding[slot[0]]][slot[1]]
 
-        if ATTACH_ROLE_MARKER:
-            if slot[1] in ATTACH_ROLE_MARKER_BEFORE:
+        if attach_role_marker:
+            if slot[1] in attach_role_maker_before:
                 text_split[i] = slot[0] + ' ' + text_split[i]
-        if GEN_SYMBOLIC_STATES:
+        if gen_symbolic_states:
             # gather new filler name
             this_filler = get_filler_of_role(slot[0], curr_grounding)
             if this_filler not in filler_names:
-                if ATTACH_ROLE_MARKER:
+                if attach_role_marker:
                     filler_names.append(slot[0] + ' ' + this_filler)
                 else:
                     filler_names.append(this_filler)
 
-    if GEN_SYMBOLIC_STATES:
+    if gen_symbolic_states:
         sym_state = '%s(%s)' %(curr_state, ','.join(filler_names))
         sym_state += '.' if curr_state == 'END' else ';'
         return sym_state, text_split

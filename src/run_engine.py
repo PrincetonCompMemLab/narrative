@@ -1,5 +1,5 @@
-import sys
-from engine import *
+#import sys  # not used
+from engine import *  # this import makes it really hard to understand the code
 
 # get input arguments
 parser = argparse.ArgumentParser()
@@ -21,7 +21,16 @@ names_concat = '_'.join(input_fnames)
 
 
 # sample stories from schema
-def main(rand_seed):
+def main(rand_seed, stories_kwargs=None):
+    if stories_kwargs is None:
+        stories_kwargs = dict(
+            mark_end_state=False,  # attach end_of_state, end_of_story marker
+            attach_questions=False,  # attach question marker at the end of the state (e.g. Q_subject)
+            gen_symbolic_states=False,  # GEN_SYMBOLIC_STATES = False
+            attach_role_marker=False,  # ATTACH_ROLE_MARKER = False
+            attach_role_maker_before=['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object'],
+        )
+
     # get a handle on the output file
     output_path = mkdir(names_concat, n_iterations, n_repeats)
     f_stories = open_output_file(output_path, names_concat, n_iterations, n_repeats)
@@ -37,14 +46,23 @@ def main(rand_seed):
         # write to the output file
         rand_seed = write_stories(schema_info[f_idx],
                                   f_stories, f_QA,
-                                  rand_seed, n_repeats)
+                                  rand_seed, n_repeats, **stories_kwargs)
 
     f_stories.close()
     f_QA.close()
 
 if __name__ == "__main__":
+    # set the constants for the stories
+    stories_kwargs = dict(
+        mark_end_state=False,  # attach end_of_state, end_of_story marker
+        attach_questions=False,  # attach question marker at the end of the state (e.g. Q_subject)
+        gen_symbolic_states=False,  # GEN_SYMBOLIC_STATES = False
+        attach_role_marker=False,  # ATTACH_ROLE_MARKER = False
+        attach_role_maker_before=['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object'],
+    )
+
     # if there is only one 1 schema file, repeat & iter are the same thing
     if n_input_files == 1:
         n_iterations = n_iterations * n_repeats
         n_repeats = 1
-    main(0)
+    main(0, stories_kwargs)
