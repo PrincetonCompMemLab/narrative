@@ -69,22 +69,25 @@ The 1st line shows the current state. Then every next-two-lines-section represen
 
 
 **Optional output**: 
-At the beginning of the `engine.py` file, there is a code block (copied below) that controls some options for modifying **the story file**. You can do any combination of them, besides having both GEN_SYMBOLIC_STATES and ATTACH_ROLE_MARKER. 
+In `run_engine.py` several parameters of the main method (listed in the code block below)control options for the story 
+output file.  You can do any 
+combination of them, besides having both gen_symbloic_states and attach_role_marker. Currently, these features are not
+supported as command line arguments and  need to be set in the file `run_engine.py`.
 ```
-MARK_END_STATE = False
-ATTACH_QUESTIONS = False
-GEN_SYMBOLIC_STATES = False
-ATTACH_ROLE_MARKER = False
-ATTACH_ROLE_MARKER_BEFORE = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
+mark_end_state = False
+attach_questions = False
+gen_symbolic_states = False
+attach_role_marker = False
+attach_role_maker_before = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
 ```
-1. **MARK_END_STATE**
+1. **mark_end_state**
 When this is `True`, the engine generate stories with "end-of-state markers" and "end-of-story markers". 
 
 For example: 
 
 *Mariko walked into the coffee shop on poetry night.* **ENDOFSTATE** *She found an empty chair next to Sarah. "Oh hi there Mariko!" said Sarah. "I am glad you could make it Sarah!" Mariko replied*. **ENDOFSTATE** ...... 
 
-2. **ATTACH_QUESTIONS** 
+2. **attach_questions** 
 
 Note that this has NOTHING to do with the question file. When this is turned on, each sentence of the the story file is followed by "question markers". 
 
@@ -92,7 +95,7 @@ For example:
 
 *Mariko walked into the coffee shop on poetry night.* **QSubject** *She found an empty chair next to Sarah. "Oh hi there Mariko!" said Sarah. "I am glad you could make it Sarah!" Mariko replied.* **QFriend QSubject**
 
-3. **ATTACH_ROLE_MARKER**
+3. **attach_role_marker**
 
 When this is turned on, the engine insert the role before all fillers. 
 
@@ -100,7 +103,7 @@ For example:
 
 **Subject** *Mariko walked into the coffee shop on poetry night.* **Subject** *she found an empty chair next to* **Friend** *Sarah. "Oh hi there* **Subject** *Mariko!" said* **Friend** *Sarah. "I am glad you could make it* **Friend** *Sarah!"* **Subject** *Mariko replied.*
 
-4. **GEN_SYMBOLIC_STATES**
+4. **gen_symbolic_states**
 
 When this is turned on, the engine generate "symbolic states". 
 
