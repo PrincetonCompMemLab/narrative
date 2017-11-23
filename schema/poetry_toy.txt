@@ -1,0 +1,27 @@
+Entities
+-----
+Person: Name, Hungry
+A, Yes
+B, No
+
+Roles
+-----
+Subject: Person
+
+States
+-----
+BEGIN
+[Subject.Name].
+Subject.Hungry == "Yes": 0.9 Order, 0.1 Sit
+Default: 0.1 Order, 0.9 Sit
+
+Order
+eat.
+Default: 1.0 END
+
+Sit
+sitdown.
+Default: 1.0 END
+
+END
+ .
