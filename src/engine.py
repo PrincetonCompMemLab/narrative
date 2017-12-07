@@ -40,6 +40,7 @@ class Transition:
         
         cond_split = self.trans_cond.replace('.', ' ').split(' ')
         cond_fill = attributes[grounding[cond_split[0]]][cond_split[1]]
+        cond_fill = unicode(cond_fill, 'utf-8')
         if not cond_fill.isnumeric():
             cond_fill = "\"" + cond_fill + "\""
         cond_split[0] = cond_fill
@@ -219,6 +220,10 @@ def open_output_file(output_path, input_fname, n_iterations, n_repeats):
     return f_output
 
 
+# Generate a sequence of stories from the same schema
+# Returns a random seed for the next sequence
+# and a scene (state) vector s_1:n formatted for HRR encoding
+#
 def write_stories(schema_info, f_stories, f_Q_next, rand_seed, n_repeats,
                   mark_end_state=False, attach_questions=False,
                   gen_symbolic_states=False, attach_role_marker=False,
@@ -232,16 +237,24 @@ def write_stories(schema_info, f_stories, f_Q_next, rand_seed, n_repeats,
         attach_role_maker_before=attach_role_maker_before
     )
 
+    scenes = []
     # Generate stories
     for i in range(n_repeats):
         np.random.seed(rand_seed)
-        write_one_story(schema_info, f_stories, f_Q_next, **stories_kwargs)
+        event_scenes = write_one_story(schema_info, f_stories, f_Q_next, **stories_kwargs)
+        scenes.extend(event_scenes)
         # increment the seed, so that every story uses a different seed value
         # but different runs of run_engine.py use the same sequence of seed
         rand_seed += 1
-    return rand_seed
+    return rand_seed, scenes
 
 
+# Generate a single Coffee Shop World story
+# Returns a scene (state) vector formatted for HRR encoding
+# E.g. [ [(Ask, verb), (Tom, agent), (Charan, patient)],
+#        [(Answer, verb), (Charan, agent), (Tom, patient)],
+#        [(Punch, verb), (Tom, agent), (Charan, patient)] ]
+#
 def write_one_story(schema_info, f_stories, f_Q_next,
                     mark_end_state=False, attach_questions=False,
                     gen_symbolic_states=False, attach_role_marker=False,
@@ -264,13 +277,15 @@ def write_one_story(schema_info, f_stories, f_Q_next,
     f_Q_next.write(json.dumps(grounding) + '\n')
     f_Q_next.write(json.dumps(attributes) + '\n')
 
+    # vector of scenes (here called states) formatted in a way convenient for HRR encoding
+    scenes = []
 
     # Loop through states
     curr_state = 'BEGIN'
     while True:
         # get the filled state for the question file
         # "filled_Q" and "filled" are sync-ed by having the same arguments (1st 4)
-        filled_Q, _ = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
+        filled_Q, _, _ = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
         # don't write question in the 1st iteration
         # there is no next state if end
         # exists alternative future  -> necessary -> exists 2AFC
@@ -283,7 +298,8 @@ def write_one_story(schema_info, f_stories, f_Q_next,
         f_Q_next.write('\n' + filled_Q + '\n')
 
         # get a un-filled state
-        filled, fillers = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
+        filled, fillers, scene = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
+        scenes.append(scene) # append scene to scene vector 
 
         if attach_questions:
             filled = attach_role_question_marker(filled, states, curr_state)
@@ -315,11 +331,13 @@ def write_one_story(schema_info, f_stories, f_Q_next,
         alt_future = get_alternative_future(prev_state, curr_state, states, grounding, attributes)
         if alt_future != 0:
             had_alt_future = True
-            alt_future_filled, _ = get_filled_state(alt_future, grounding, states, attributes, **gfs_kwargs)
+            alt_future_filled, _, _ = get_filled_state(alt_future, grounding, states, attributes, **gfs_kwargs)
             # get the probability of the alternative future
             distribution, condition = states[prev_state].get_distribution(grounding, attributes)
             alt_future_p = distribution.get(alt_future)
             write_alt_next_state_q_file(f_Q_next, condition, alt_future_p, alt_future, alt_future_filled)
+
+    return scenes
 
 
 
@@ -364,7 +382,7 @@ def get_filler_inconsistent_next_state(fillers, people_introduced, people_all,
                       attach_role_maker_before=attach_role_maker_before)
 
     # compute people who are gonna appear next
-    next_state_temp, next_fillers = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
+    next_state_temp, next_fillers, _ = get_filled_state(curr_state, grounding, states, attributes, **gfs_kwargs)
 
     # print('->:%s\n' % next_state_temp)
     next_characters, _, _ = update_introduced_characters(next_fillers, people_introduced, people_all)
@@ -413,7 +431,7 @@ def generate_alternative_grounding(next_characters, grounding, curr_state,
             continue
         else:
             # get a instantiated state
-            alt_future_filled, _ = get_filled_state(curr_state, alt_next_grounding, states, attributes, **gfs_kwargs)
+            alt_future_filled, _, _ = get_filled_state(curr_state, alt_next_grounding, states, attributes, **gfs_kwargs)
             # write to question file
             alt_future = curr_state
             write_alt_next_state_q_file(f_Q_next, condition, 0, alt_future, alt_future_filled)
@@ -561,8 +579,14 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     if attach_role_maker_before is None:
         attach_role_maker_before = ['Pronoun', 'Name', 'Pronoun_possessive', 'Pronoun_object']
 
+    # scene (state) formatted conveniently for HRR encoding
+    # E.g. [(Ask, verb), (Tom, agent), (Charan, patient)]
+    scene = []
+    scene.append((curr_state, 'verb'))
+
     text_split = all_states[curr_state].text.replace(']', '[').split('[')
     filler_names = []
+    used_fillers = [] 
     # loop over segments
     for i in range(1, len(text_split), 2):
         slot = text_split[i].split('.')
@@ -571,10 +595,13 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
         if attach_role_marker:
             if slot[1] in attach_role_maker_before:
                 text_split[i] = slot[0] + ' ' + text_split[i]
-        if gen_symbolic_states:
-            # gather new filler name
-            this_filler = get_filler_of_role(slot[0], curr_grounding)
-            if this_filler not in filler_names:
+
+        # gather new filler name
+        this_filler = get_filler_of_role(slot[0], curr_grounding)
+        if this_filler not in used_fillers:
+            scene.append((this_filler, slot[0]))
+            used_fillers.append(this_filler)
+            if gen_symbolic_states:
                 if attach_role_marker:
                     filler_names.append(slot[0] + ' ' + this_filler)
                 else:
@@ -583,7 +610,7 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     if gen_symbolic_states:
         sym_state = '%s(%s)' %(curr_state, ','.join(filler_names))
         sym_state += '.' if curr_state == 'END' else ';'
-        return sym_state, text_split
+        return sym_state, text_split, scene
 
     # get a filled state
     filled = ''.join(text_split)
@@ -592,7 +619,7 @@ def get_filled_state(curr_state, curr_grounding, all_states, all_attributes,
     else:
         filled = filled[0].upper() + filled[1:]
 
-    return filled, text_split
+    return filled, text_split, scene
 
 
 def attach_role_question_marker(filled_sentence_text, states, curr_state):

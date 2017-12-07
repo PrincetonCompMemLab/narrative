@@ -21,6 +21,9 @@ names_concat = '_'.join(input_fnames)
 
 
 # sample stories from schema
+# Returns a scene (state) vector s_1:n formatted for HRR encoding
+# as well as a sequence of event labels e_1:n according to the story type
+#
 def main(rand_seed, stories_kwargs=None):
     if stories_kwargs is None:
         stories_kwargs = dict(
@@ -40,16 +43,23 @@ def main(rand_seed, stories_kwargs=None):
     for i in range(n_input_files):
         schema_info.append(read_schema_file(input_fnames[i]))
 
+    scenes = [] # s_1:n
+    events = [] # e_1:n
     # write stories with alternating schema info
     for i in range(n_input_files * n_iterations):
         f_idx = np.mod(i, n_input_files)
         # write to the output file
-        rand_seed = write_stories(schema_info[f_idx],
+        rand_seed, schema_scenes = write_stories(schema_info[f_idx],
                                   f_stories, f_QA,
                                   rand_seed, n_repeats, **stories_kwargs)
+        scenes.extend(schema_scenes)
+        events.extend([f_idx] * len(schema_scenes))
+    assert len(events) == len(scenes)
 
     f_stories.close()
     f_QA.close()
+
+    return scenes, events
 
 if __name__ == "__main__":
     # set the constants for the stories
